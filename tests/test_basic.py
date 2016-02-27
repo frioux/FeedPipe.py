@@ -78,5 +78,8 @@ class TestStringMethods(unittest.TestCase):
     def test_rss10(self):
         self._check_feed(FeedPipe().cat([RSS10]))
 
+    def test_count(self):
+        self.assertEqual(FeedPipe().cat([ATOM10, RSS10]).count(), 2)
+
 if __name__ == '__main__':
     unittest.main()
