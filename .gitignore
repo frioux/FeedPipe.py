@@ -1,0 +1,6 @@
+*.py[co]
+nosetests.xml
+build
+dist
+bugs.egg-info
+README.html
