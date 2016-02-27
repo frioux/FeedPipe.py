@@ -10,8 +10,11 @@ python:
   # - "nightly" # currently points to 3.6-dev
 
 install:
+  - pip install    coverage coveralls
   - pip install -r requirements.txt
   - pip install -r test-requirements.txt
 
-script: nosetests
+script: nosetests --with-coverage --cover-erase --cover-package=feedpipe
 
+after_success:
+  coveralls
