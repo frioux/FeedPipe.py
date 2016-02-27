@@ -5,6 +5,7 @@ import feed.atom as FA
 from uuid import uuid4
 from datetime import datetime
 
+
 # TODO: document entry objects better (or better yet, make Steve do it.)
 class FeedPipe(object):
     """
@@ -42,9 +43,9 @@ class FeedPipe(object):
 
     """
     def __init__(self,
-                 title = "Combined Feed",
-                 id = 'urn:' + str(uuid4()),
-                 updated = datetime.now().isoformat()):
+                 title="Combined Feed",
+                 id='urn:' + str(uuid4()),
+                 updated=datetime.now().isoformat()):
         """
         Returns a new FeedPipe instance.
 
@@ -131,7 +132,6 @@ class FeedPipe(object):
 
         return self
 
-
     def head(self, length=10):
         """
         Truncates feed starting at the beginning.  Returns self for chaining.
@@ -156,8 +156,8 @@ class FeedPipe(object):
             fp.map(fix_title)
 
         Arguments:
-            transform -- a callback that takes an entry and returns it, possibly
-                         modified
+            transform -- a callback that takes an entry and returns it,
+                         possibly modified
         """
         self.entries = [filter(x) for x in self.entries]
 
