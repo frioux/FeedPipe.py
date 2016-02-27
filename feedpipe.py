@@ -252,7 +252,7 @@ class FeedPipe(object):
 
         Arguments: none
         """
-        xmldoc = XMLDoc()
+        xmldoc = FA.XMLDoc()
         xmldoc.root_element = self.as_atom_obj()
 
         return str(xmldoc)

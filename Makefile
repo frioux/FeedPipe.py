@@ -4,7 +4,7 @@ all:
 	$(error Please pick a target)
 
 test: clean validate
-	nosetests --with-xunit -vd --with-doctest
+	python -m nose --with-xunit -vd --with-doctest
 
 clean:
 	rm -rf build dist ${PROJECT}.egg-info nosetests.xml
@@ -14,7 +14,7 @@ clobber: clean
 	rm -rf *.egg
 
 validate:
-	flake8 ${PROJECT}.py tests
+	python -m flake8 ${PROJECT}.py tests
 
 jenkins: test
 
