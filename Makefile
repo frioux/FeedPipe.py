@@ -14,7 +14,7 @@ clobber: clean
 	rm -rf *.egg
 
 validate:
-	flake8 ${PROJECT} tests
+	flake8 ${PROJECT}.py tests
 
 jenkins: test
 
