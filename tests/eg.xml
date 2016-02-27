@@ -1,0 +1,1166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A Foolish Manifesto</title>
+    <link>https://blog.afoolishmanifesto.com/</link>
+    <language>en-us</language>
+    <author>Arthur Axel fREW Schmidt</author>
+    <rights>Copyright (c) 2014, Arthur Axel fREW Schmidt; all rights reserved.</rights>
+    <updated>2016-02-20 23:18:51 &#43;0000 UTC</updated>
+    
+    <item>
+      <title>Migrating My Blog from Linode to CloudFront</title>
+      <link>https://blog.afoolishmanifesto.com/posts/migrating-blog-to-cloudfront/</link>
+      <pubDate>Sat, 20 Feb 2016 23:18:51 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/migrating-my-blog-from-linode-to-cloudfront</guid>
+      <description>
+
+&lt;h2 id=&#34;motivations:5963e5b2e13485253b18627a6f659c47&#34;&gt;Motivations&lt;/h2&gt;
+
+&lt;p&gt;I have just completed the process of migrating my blog to
+&lt;a href=&#34;https://aws.amazon.com/cloudfront/&#34;&gt;CloudFront&lt;/a&gt;.  There are a few reasons for
+this.  Initially I had planned to migrate everything on my Linode to
+&lt;a href=&#34;https://www.ovh.com/us/&#34;&gt;OVH&lt;/a&gt;, which has DDoS mitigation and I think even
+uptime SLAs. The reasoning behind that was the Linode kept getting DDoS&amp;rsquo;ed and I
+was sick of it.&lt;/p&gt;
+
+&lt;p&gt;Additionally, in January I went to
+&lt;a href=&#34;https://www.socallinuxexpo.org/scale/14x&#34;&gt;SCALE14x&lt;/a&gt; and &lt;a href=&#34;https://twitter.com/esh&#34;&gt;Eric
+Hammond&lt;/a&gt; (who was introduced to me by &lt;a href=&#34;https://twitter.com/spazm&#34;&gt;Andrew
+Grangaard&lt;/a&gt;) pointed out that by using the current
+generation of AWS tooling (Lambda, DynamoDB, etc) you can reduce total
+cost to less than the minimum pricing on a Linode.  The cost of my Linode isn&amp;rsquo;t
+super expensive (less than the price of Netflix) but every little bit helps.  On
+top of that we use the AWS stuff at work so another chance to be familiar with
+AWS is a good thing.&lt;/p&gt;
+
+&lt;p&gt;Finally, after &lt;a href=&#34;https://blog.linode.com/2016/02/19/security-investigation-retrospective/&#34;&gt;the most recent security
+fiasco&lt;/a&gt;
+I just feel safer using infrastructure that is more well tested in general.
+Plus I think I can get away with moving &lt;em&gt;most&lt;/em&gt; of my stuff off of VMs, which
+means I&amp;rsquo;m less likely to screw something up.&lt;/p&gt;
+
+&lt;p&gt;As a side note, I have been self hosting my blog since 2007.  I am loathe to do
+external hosting, as external hosts all seem to end up dying at some point
+anyway.  I did briefly consider hosting on github, but you either have to change
+your domain name (&lt;code&gt;frioux.github.io&lt;/code&gt;) or have no TLS (more on that later) so I
+decided to go the manual hosting route.&lt;/p&gt;
+
+&lt;h2 id=&#34;howto:5963e5b2e13485253b18627a6f659c47&#34;&gt;Howto&lt;/h2&gt;
+
+&lt;p&gt;For small stuff like this, it can be worthwhile to make a distinct AWS account
+for each project.  I made a special blog account to help me with accounting if
+the total cost of this ends up being more than I expect.  Because I have my own
+domain I have as many email addresses as I want, so I just made a new one
+specifically for my blog, and then used it to make a new AWS account.&lt;/p&gt;
+
+&lt;p&gt;After creating the blog account I &lt;a href=&#34;https://console.aws.amazon.com/billing/home#/costexplorer&#34;&gt;enabled Cost
+Explorer&lt;/a&gt;.  I have no
+idea why this has to be turned on, because it&amp;rsquo;s super helpful to be able to use.
+Next I &lt;a href=&#34;https://console.aws.amazon.com/iam/home?#security_credential&#34;&gt;Activated
+MFA&lt;/a&gt; (you know,
+for security!) Maybe I should have done that first.  I could do something with
+&lt;code&gt;IAM&lt;/code&gt; I&amp;rsquo;m sure but it would be overkill for something as single task as this
+that only I will ever use.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.earaya.com/blog/2012/07/13/hosting-a-static-website-on-amazon-s3-and-cloudfront/&#34;&gt;I followed instructions I found
+here&lt;/a&gt;
+to set up the S3 and CloudFront parts.  The only issue I ran into was that I
+forgot to set the CNAME both in DNS &lt;em&gt;and&lt;/em&gt; in the CloudFront config.  To actually
+sync my blog I use the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;aws s3 sync --delete . s3://blog.afoolishmanifesto.com
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;--delete&lt;/code&gt; flag is so that files that aren&amp;rsquo;t in the remote side get removed.&lt;/p&gt;
+
+&lt;p&gt;At this point you should be able to test that everything is mostly working by
+visiting the endpoint that the bucket provides.  The CloudFront part usually
+takes a while because it has to sync all over the world and wait for DNS too.&lt;/p&gt;
+
+&lt;p&gt;Because I care about my readers I only serve my blog over HTTPS.  It&amp;rsquo;s not that
+I think you are reading my blog in secret; I don&amp;rsquo;t want malware to be injected
+by messed up access points.  Because of that I had to get a certificate.  If I
+were serving from US East I could have gotten free, auto-renewing certificates
+from Amazon.  Sadly I didn&amp;rsquo;t think to do this, even though it would have been
+trivial since I don&amp;rsquo;t really care where the site is served from.
+&lt;a href=&#34;https://startssl.com&#34;&gt;StartSSL&lt;/a&gt; also gives free certificates, so that&amp;rsquo;s what I
+used.  To upload your certificate you need to use a command like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;aws iam upload-server-certificate \
+      --server-certificate-name blog_cert \
+      --certificate-body file://blog.afoolishmanifesto.com/ApacheServer/2_blog.afoolishmanifesto.com.crt \
+      --private-key file://blog.afoolishmanifesto.com.priv \
+      --certificate-chain file://pwd/blog.afoolishmanifesto.com/ApacheServer/1_root_bundle.crt \
+      --path /cloudfront/blog/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Getting and creating the certificate is not something I&amp;rsquo;m super interested in
+writing about, as it&amp;rsquo;s pretty well documented already.&lt;/p&gt;
+
+&lt;h2 id=&#34;benefits:5963e5b2e13485253b18627a6f659c47&#34;&gt;Benefits&lt;/h2&gt;
+
+&lt;p&gt;Clearly the fact that I pulled the trigger on this project means that I think it
+was worth it, so here are some of the benefits to using CloudFront to host my
+blog.&lt;/p&gt;
+
+&lt;h3 id=&#34;pricing:5963e5b2e13485253b18627a6f659c47&#34;&gt;Pricing&lt;/h3&gt;
+
+&lt;p&gt;After reading the &lt;a href=&#34;https://medium.com/@karppinen/how-i-ended-up-paying-150-for-a-single-60gb-download-from-amazon-glacier-6cb77b288c3e#.nm61wufzw&#34;&gt;nightmare glacier
+post&lt;/a&gt;
+last month I commited to reading and understanding the pricing models of the
+various AWS services before using them.  With that in mind I read about the
+pricing of the stuff I&amp;rsquo;ll be using for my blog before embarking on this project.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://aws.amazon.com/s3/pricing/&#34;&gt;S3 Pricing&lt;/a&gt; is pretty understandable.
+I&amp;rsquo;ll pay 3¢/mo for the storage, as my blog is about 35 mB of HTML and images
+total.  Uploading the entire blog afresh (which I sorta assume is what &lt;code&gt;sync&lt;/code&gt;
+does, but I&amp;rsquo;m not sure) is about 16k files, which (rounding up) is 2¢.  So if
+&lt;code&gt;sync&lt;/code&gt; works inefficiently a post is likely to cost me about 5¢, including
+fixing typos or whatever.  Assuming a &lt;strong&gt;lot&lt;/strong&gt; of posts, let&amp;rsquo;s say sixteen a
+month, that adds up to 80¢ per month.  There is no charge to transfer from S3 to
+CloudFront, so that adds up to a maximum of 83¢ per month for S3.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://aws.amazon.com/cloudfront/pricing/&#34;&gt;CloudFront Pricing&lt;/a&gt; is even
+more simple.  Assuming 100% of the traffic from my Linode is my blog (it is
+without a doubt mostly IRC, but for accounting purposes let&amp;rsquo;s assume the worst)
+and it is all from India (again, nope) the charge from CloudFront will be 51¢.
+Assuming every single request on my server is to my blog (another verifiable
+falsehood) that would add whopping $1.10 to the monthly bill.  That adds up to
+$1.61 per month for CloudFront.&lt;/p&gt;
+
+&lt;p&gt;So, worst case scenario, my monthly bill is $2.44 a month.  I suspect it will likely be
+much less than that.  I&amp;rsquo;ll try to remmeber at the end of March to update this
+post with what the real price ends up being.&lt;/p&gt;
+
+&lt;h3 id=&#34;global:5963e5b2e13485253b18627a6f659c47&#34;&gt;Global&lt;/h3&gt;
+
+&lt;p&gt;Unlike my Linode, which always resided in the wonderful city of Dallas, TX,
+CloudFront specifically exists to be global.  So if you read my blog from the UK
+(I&amp;rsquo;m sure there are some!) or Japan (eh&amp;hellip; maybe not) it should be a lot more
+snappy now.&lt;/p&gt;
+
+&lt;h3 id=&#34;isolation:5963e5b2e13485253b18627a6f659c47&#34;&gt;Isolation&lt;/h3&gt;
+
+&lt;p&gt;Sometimes my Linode gets rebooted for Hypervisor updates; or worse I mess up my
+Apache config or something.  The above setup is well isolated from all my other
+stuff so it should be very reliable.&lt;/p&gt;
+
+&lt;h2 id=&#34;drawbacks:5963e5b2e13485253b18627a6f659c47&#34;&gt;Drawbacks&lt;/h2&gt;
+
+&lt;p&gt;But it&amp;rsquo;s not all unicorns, rainbows, penny-whistles, and blow.  There are some
+problems!&lt;/p&gt;
+
+&lt;h3 id=&#34;pricing-1:5963e5b2e13485253b18627a6f659c47&#34;&gt;Pricing&lt;/h3&gt;
+
+&lt;p&gt;The above calculations are based on past history.  If I get DDoS&amp;rsquo;d directly I
+will suddenly get a bill for a thousand bucks, instead of my server just falling
+over.  That&amp;rsquo;s something that gives me serious pause.  My boss told me that
+you can use Lambda as rate limiting tool.  I expect to look into that before too
+long, especially because I have other plans for Lambda anyway.&lt;/p&gt;
+
+&lt;h3 id=&#34;slow-to-update:5963e5b2e13485253b18627a6f659c47&#34;&gt;Slow to Update&lt;/h3&gt;
+
+&lt;p&gt;Unsurprisngly, because CloudFront is a CDN, there is a TTL on the cached data,
+so sometimes it can take a few minutes for a modification to the blog to go
+live.  Not a huge deal, but good to know anyway.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Overall this has been a relatively painless process and I think it is worth it.
+I hope this helps anyone considering migration to AWS.&lt;/p&gt;
+</description>
+      
+      <category>linode</category>
+      
+      <category>aws</category>
+      
+      <category>s3</category>
+      
+      <category>cloudfront</category>
+      
+    </item>
+    
+    <item>
+      <title>UCSPI</title>
+      <link>https://blog.afoolishmanifesto.com/posts/ucspi/</link>
+      <pubDate>Wed, 10 Feb 2016 09:42:34 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/ucspi</guid>
+      <description>
+
+&lt;p&gt;While &lt;a href=&#34;https://www.ietf.org/rfc/rfc3875&#34;&gt;CGI&lt;/a&gt; is a fairly well established, if
+aging, protocol, &lt;a href=&#34;http://cr.yp.to/proto/ucspi.txt&#34;&gt;UCSPI&lt;/a&gt; seems fairly obscure.
+I suspect that UCSPI may see a resurgence as finally with
+&lt;a href=&#34;https://www.freedesktop.org/software/systemd/man/systemd.socket.html&#34;&gt;systemd&lt;/a&gt;
+projects will have a reason to support running in such a mode.  But here I go,
+burying the lede.&lt;/p&gt;
+
+&lt;h2 id=&#34;cgi-refresher:54ae8c721b13d5a7ce5eb098b765075e&#34;&gt;CGI Refresher&lt;/h2&gt;
+
+&lt;p&gt;Just as a way of illustrating by example, I think that I should explain
+(hopefully only by way of reminder) how CGI works.  Basically a server (usually
+Apache, IIS, or lately, nginx) waits for a client to connect, and when it does,
+it parses the request and all of the request headers.  They look something like
+this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;POST /upload?test=false HTTP/1.1
+User-Agent: blog/0.0.1
+Content-Type: text/plain
+Content-Length: 4
+
+frew
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then various parts of the above go into environment variables; for example
+&lt;code&gt;test=false&lt;/code&gt; would become the value of &lt;code&gt;QUERY_STRING&lt;/code&gt;.  Then the body (in this
+example, &lt;code&gt;frew&lt;/code&gt;) would be written to the standard input of the CGI script.
+While this seems a little fiddly compared to some of the more modern APIs and
+frameworks, it is nice because you don&amp;rsquo;t even need a language that supports
+sockets.  You can even write a simple script with a shell!&lt;/p&gt;
+
+&lt;h3 id=&#34;ugh:54ae8c721b13d5a7ce5eb098b765075e&#34;&gt;ugh&lt;/h3&gt;
+
+&lt;p&gt;The response is &lt;em&gt;almost&lt;/em&gt; just whatever the script prints to standard out, though
+perversely there is a small bit of modification that happens, so the server has
+to parse some of the output, which seems like a huge oversight in the
+specification.  Specifically, instead of allowing the script to print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 200 OK
+Content-Type: text/html
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It instead must write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Status: 200 OK
+Content-Type: text/html
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and is even allowed to write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Content-Type: text/html
+Status: 200 OK
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;but the server still must translate that to:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 200 OK
+Content-Type: text/html
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This means that if the server works correctly it may need to buffer an unbound
+(by the spec) amount of headers before it gets to the &lt;code&gt;Status&lt;/code&gt; header.  Ah the
+joys of implementing a CGI server.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-is-ucspi:54ae8c721b13d5a7ce5eb098b765075e&#34;&gt;What is UCSPI&lt;/h2&gt;
+
+&lt;p&gt;UCSPI stands for Unix Client Server Program Interface.  Basically the way it
+works is that you have a tool that opens a socket and waits for new connections.
+When it gets a new connection it spins up a new process, setting up pipes
+between standard input and standard output of that process and to the input and
+output of the socket.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s an interesting thing that I have needed to do that I could not do without
+UCSPI.  Because each connection in the UCSPI model ends up being a separate set
+of processes, the connection can restart the parent UCSPI worker and still
+finish it&amp;rsquo;s connection.&lt;/p&gt;
+
+&lt;p&gt;This means that, for example, I can have a push to github automatically update
+my running server, without any weird side mechanisms like a second updater
+service or worse, a cronjob.  I just do a &lt;code&gt;git fetch&lt;/code&gt; and &lt;code&gt;git reset --hard
+@{u}&lt;/code&gt;, and the next time a client connects it will be running the new code.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/frioux/Lizard-Brain/blob/master/www/cgi-bin/impulse-www#L57-L86&#34;&gt;Here is how I did
+that&lt;/a&gt;.
+At some point I expect to make the automatic updater more reliable and generic.&lt;/p&gt;
+
+&lt;p&gt;Another sorta nice thing, though this is very much a tradeoff, is that the
+process that has the listening port is very small (2M on my machine) compared
+to, say, an actual Plack server (which is an order of magnitude bigger.)  On the
+other hand, if your actual cgi script has a lot of dependencies it can take a
+long time to start, so this may not be a good long term solution.&lt;/p&gt;
+
+&lt;p&gt;Note that there are problems of course.  Aside from the increased cost of
+spinning up a new server, you also have to be careful to avoid printing to
+standard out.  If you do you are almost ensured to print your whatever before
+any headers which ends up being an invalid response.  On the other hand you can
+do a bunch of weird old school type stuff like &lt;code&gt;chdir&lt;/code&gt;ing in a script and not
+worry about global state changes.&lt;/p&gt;
+
+&lt;h2 id=&#34;aside-plack-under-cgi:54ae8c721b13d5a7ce5eb098b765075e&#34;&gt;Aside: Plack under CGI&lt;/h2&gt;
+
+&lt;p&gt;Because my web apps thus far have been implemented using PSGI, an abstraction of
+HTTP, they can run under their own servers or under CGI directly.  I only really
+needed to do one of two things to make my application run under CGI:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Set the shebang to &lt;code&gt;#!/usr/bin/env plackup&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Or in my case, &lt;a href=&#34;https://github.com/frioux/Lizard-Brain/blob/master/services/lizard-brain-www/run#L6&#34;&gt;just use &lt;code&gt;plackup&lt;/code&gt; directly as the commandline&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I hope you found this interesting!&lt;/p&gt;
+</description>
+      
+      <category>ucspi</category>
+      
+      <category>cgi</category>
+      
+      <category>psgi</category>
+      
+      <category>unix</category>
+      
+      <category>pipes</category>
+      
+    </item>
+    
+    <item>
+      <title>Rust</title>
+      <link>https://blog.afoolishmanifesto.com/posts/rust/</link>
+      <pubDate>Tue, 09 Feb 2016 09:34:13 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/rust</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve really enjoyed writing Rust, lately.  &lt;a href=&#34;https://blog.afoolishmanifesto.com/posts/announcing-cgid/&#34;&gt;I posted
+yesterday&lt;/a&gt; about what I&amp;rsquo;m doing with it.  In the
+meantime here are some immediate reactions to writing Rust:&lt;/p&gt;
+
+&lt;h3 id=&#34;documentation:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Documentation&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://doc.rust-lang.org/1.6.0/std/process/struct.Child.html#method.kill&#34;&gt;The documentation is pretty
+good.&lt;/a&gt;
+It could be better, like if every single method had an example included, but it
+could be a lot worse.  And the fact that a lot (though not all for some reason)
+of the documentation has links to the related source is really handy.&lt;/p&gt;
+
+&lt;h3 id=&#34;language-itself:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Language Itself&lt;/h3&gt;
+
+&lt;p&gt;The languages feels good.  This is really hard to express, but the main thing is
+that type inference makes a lot of the type defintions feel less burdensome
+than, for example, Java and friends.  It also feels stratospherically high
+level, with closures, object orientation, destructuring, handy methods on basic
+types like strings, and much more.  Yet it&amp;rsquo;s actually pretty low level.&lt;/p&gt;
+
+&lt;h3 id=&#34;community:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Community&lt;/h3&gt;
+
+&lt;p&gt;The community is awesome!  I have &lt;strong&gt;never&lt;/strong&gt; had as many friendly and willing
+people help me as a total noob before.  Maybe it&amp;rsquo;s because Rust has a code of
+conduct or maybe it&amp;rsquo;s because Mozilla are nice people.  I appreciate that there
+are people who actually know what is up answering questions at all hours of the
+night; they also generally assume competence.  While assuming competence may make
+the total amount of questions asked greater, it makes the entire exchange much
+mroe pleasant. More of this please!&lt;/p&gt;
+
+&lt;h3 id=&#34;error-messages:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Error Messages&lt;/h3&gt;
+
+&lt;p&gt;The error messages are very good.  For example, check this out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ rustc httpd.rs
+httpd.rs:84:42: 84:43 error: unresolved name `n`. Did you mean `v`? [E0425]
+httpd.rs:84             Ok(v) =&amp;gt; { *content_length = n },
+                                                     ^
+httpd.rs:84:42: 84:43 help: run `rustc --explain E0425` to see a detailed explanation
+error: aborting due to previous error
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They all give some context like that, and then have an error code (the
+&lt;code&gt;--explain&lt;/code&gt; thing) that lets you get a more complete description of what you
+did and how you can fix it.  Sometimes the errors can be pretty inscrutable for
+a new user though:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ rustc httpd.rs
+httpd.rs:216:31: 219:7 error: the trait `core::ops::FnOnce&amp;lt;()&amp;gt;` is not implemented for the type `()` [E0277]
+httpd.rs:216     let mut c_stdin = f.stdin.unwrap_or_else({
+httpd.rs:217         warn!(&amp;quot;Failed to get child&#39;s STDIN&amp;quot;);
+httpd.rs:218         early_exit(&amp;quot;500 Internal Server Error&amp;quot;);
+httpd.rs:219     });
+httpd.rs:216:31: 219:7 help: run `rustc --explain E0277` to see a detailed explanation
+error: aborting due to previous error
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;searchability:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Searchability&lt;/h3&gt;
+
+&lt;p&gt;Searching for examples of stuff online is surprisingly hard.  I don&amp;rsquo;t know if
+that&amp;rsquo;s because Rust is a popular video game or if it&amp;rsquo;s just because the language
+is fairly new.  I hope to help remedy this in general.&lt;/p&gt;
+
+&lt;h3 id=&#34;etc:d3c7600f67cc433a55785816ff4c3a47&#34;&gt;Etc&lt;/h3&gt;
+
+&lt;p&gt;There is certainly more, like the included &lt;a href=&#34;https://crates.io&#34;&gt;package management
+system&lt;/a&gt; or other interesting language features.  I may post
+more about those later, but the above is stuff that I ran into during my week
+long foray into Rust.  Hope this helps!&lt;/p&gt;
+</description>
+      
+      <category>rust</category>
+      
+      <category>community</category>
+      
+      <category>documentation</category>
+      
+      <category>error messages</category>
+      
+    </item>
+    
+    <item>
+      <title>Announcing cgid</title>
+      <link>https://blog.afoolishmanifesto.com/posts/announcing-cgid/</link>
+      <pubDate>Mon, 08 Feb 2016 08:42:34 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/announcing-cgid</guid>
+      <description>
+
+&lt;p&gt;This post is an announcement of &lt;a href=&#34;https://github.com/frioux/cgid&#34;&gt;&lt;code&gt;cgid&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Over the past week I developed a small UCSPI based single-file CGI server.  The
+usage is very simple, due to the nature of the tool.  Here&amp;rsquo;s a quick example of
+how I use it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/bin/nosh
+tcp-socket-listen 127.0.0.1 6000
+tcp-socket-accept --no-delay
+cgid
+www/cgi-bin/my-cgi-script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t know anything about UCSPI, this will look like nonsense to you.  I
+have a post that I&amp;rsquo;ll publish later this week about UCSPI, so you can wait for
+that, or you can search for it and find lots of documents about it already.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&#34;rust:53555223d8a6e9498f5e2ab6133e89a9&#34;&gt;Rust&lt;/h3&gt;
+
+&lt;p&gt;As a side note, &lt;code&gt;cgid&lt;/code&gt; was written in Rust.  I have a post about Rust itself in
+the queue, but I think discussing the &amp;ldquo;release process&amp;rdquo; of a binary tool like
+&lt;code&gt;cgid&lt;/code&gt; at release time is sensible.  The procedure for releasing went something
+like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git tag v0.1.0 -m &#39;Release v0.1.0&#39;
+
+# release to crates.io
+cargo package
+cargo publish
+
+cargo build --release
+# fiddle with github webpage to put binaries on the release
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a joke compared to the spoiling I&amp;rsquo;ve had from
+&lt;a href=&#34;http://dzil.org/&#34;&gt;Dist::Zilla&lt;/a&gt;, which is what I use when releasing packages to
+&lt;a href=&#34;https://metacpan.org/&#34;&gt;CPAN&lt;/a&gt;.  At some point I&amp;rsquo;d like to automate Rust releases
+as much as &lt;a href=&#34;https://rjbs.manxome.org/&#34;&gt;Rik&lt;/a&gt; has automated releasing to CPAN.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ll keep my eye out for more things that deserve to be written in Rust, as I
+enjoyed the process, but I expect that ideas which deserve to be written in
+Rust are few and far between, for me.  It is pretty cool that basically not
+knowing Rust, I successfully implemented a tool that doesn&amp;rsquo;t exist anywhere in
+less than two weeks.&lt;/p&gt;
+</description>
+      
+      <category>cgid</category>
+      
+      <category>rust</category>
+      
+      <category>ucspi</category>
+      
+      <category>cgi</category>
+      
+      <category>http</category>
+      
+    </item>
+    
+    <item>
+      <title>Handy Rust Macros</title>
+      <link>https://blog.afoolishmanifesto.com/posts/handy-rust-macros/</link>
+      <pubDate>Sat, 06 Feb 2016 14:34:13 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/handy-rust-macros</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been writing some Rust lately and have been surprised at the dearth of
+examples that show up when I search for what seems obvious.  Anyway, I wrote
+a couple macros that I&amp;rsquo;ve found very handy.  The first seems like it should
+almost be core:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;macro_rules! warn {
+    ($fmt:expr) =&amp;gt; ((writeln!(io::stderr(), $fmt)).unwrap());
+    ($fmt:expr, $($arg:tt)*) =&amp;gt; ((writeln!(io::stderr(), $fmt, $($arg)*)).unwrap());
+}
+
+// Examples:
+warn!(&amp;quot;This goes to standard error&amp;quot;);
+warn!(&amp;quot;Connected to host: {}&amp;quot;, hostname);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This allows you to trivially write to standard error, and it panics if it fails
+to write to standard error.  If it weren&amp;rsquo;t for this final detail I&amp;rsquo;d actually
+submit it as a pull request for Rust itself.  For my code, being able to print
+to the standard filehandles is critical, so crashing if STDERR is closed makes
+sense, but there are many situations where that is not reasonable.&lt;/p&gt;
+
+&lt;p&gt;The next example is the more interesting one, a macro that uses an environment
+variable at compile time to modify what it does:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;macro_rules! debug {
+    ($fmt:expr) =&amp;gt; (
+        match option_env!(&amp;quot;HTTPD_DEBUG&amp;quot;) {
+            None =&amp;gt; (),
+            Some(_) =&amp;gt; warn!($fmt),
+        }
+    );
+    ($fmt:expr, $($arg:tt)*) =&amp;gt; (
+        match option_env!(&amp;quot;HTTPD_DEBUG&amp;quot;) {
+            None =&amp;gt; (),
+            Some(_) =&amp;gt; warn!($fmt, $($arg)*),
+        }
+    );
+}
+
+// Examples:
+debug!(&amp;quot;This goes to standard error&amp;quot;);
+debug!(&amp;quot;Connected to host: {}&amp;quot;, hostname);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;debug!&lt;/code&gt; works just like &lt;code&gt;warn!&lt;/code&gt;, but if the &lt;code&gt;HTTPD_DEBUG&lt;/code&gt; environment variable
+is unset at compile time it is as if nothing was even written.  Sorta handy, but
+what&amp;rsquo;s more important is the general pattern.&lt;/p&gt;
+
+&lt;p&gt;I hope to be blogging more about Rust in the future.  I hope this helps!&lt;/p&gt;
+</description>
+      
+      <category>rust</category>
+      
+      <category>macro</category>
+      
+    </item>
+    
+    <item>
+      <title>Checking sudoers with visudo in SaltStack</title>
+      <link>https://blog.afoolishmanifesto.com/posts/checking-sudoers-with-visudo-in-saltstack/</link>
+      <pubDate>Thu, 14 Jan 2016 23:45:33 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/checking-sudoers-with-visudo-in-saltstack</guid>
+      <description>&lt;p&gt;At &lt;a href=&#34;https://ziprecruiter.com&#34;&gt;work&lt;/a&gt; we are migrating our server deployment setup
+to use &lt;a href=&#34;http://saltstack.com/&#34;&gt;SaltStack&lt;/a&gt;.  One of the things we do at deploy
+time is generate a sudoers file, but as one of our engineers found out, if you
+do not verify the contents of the sudoers file before deploying it you will be
+in a world of hurt.&lt;/p&gt;
+
+&lt;p&gt;Salt actually has a pretty good built in tool for this, but it&amp;rsquo;s very poorly
+documented.  This is one of the most obvious uses for it and because Googling
+for it didn&amp;rsquo;t work for me I figured I&amp;rsquo;d make it work for someone else.&lt;/p&gt;
+
+&lt;p&gt;The feature is the &lt;code&gt;check_cmd&lt;/code&gt; flag on
+&lt;a href=&#34;https://docs.saltstack.com/en/latest/ref/states/all/salt.states.file.html#salt.states.file.managed&#34;&gt;&lt;code&gt;file.managed&lt;/code&gt;&lt;/a&gt;.
+The current documentation for the feature is:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The specified command will be run with the managed file as an argument. If the
+command exits with a nonzero exit code, the state will fail and no changes
+will be made to the file.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This isn&amp;rsquo;t super clear.  It takes the generated content, puts it in a
+tmpfile, runs the command + the tmpfile path, and then replaces the real contents
+with the tmpfile.  So here is how I used it to verify sudoers&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo.config_file:
+  file.managed:
+    - name: {{ sudo.config_file.name }}
+    - user: root
+    - group: root
+    - mode: 0440
+    - source: {{ sudo.config_file.source }}
+    - template: {{ sudo.config_file.template }}
+    - check_cmd: /usr/sbin/visudo -c -f
+    - require:
+      - pkg: sudo
+      - group: sudo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hope this helps!&lt;/p&gt;
+</description>
+      
+      <category>salt</category>
+      
+      <category>saltstack</category>
+      
+      <category>sudoers</category>
+      
+      <category>check_cmd</category>
+      
+    </item>
+    
+    <item>
+      <title>Pong for Pico-8</title>
+      <link>https://blog.afoolishmanifesto.com/posts/pong/</link>
+      <pubDate>Wed, 23 Dec 2015 06:55:43 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/pong-for-pico-8</guid>
+      <description>&lt;p&gt;I originally wrote this for the &lt;a href=&#34;http://pico8fanzine.bigcartel.com/&#34;&gt;Pico-8
+Fanzine&lt;/a&gt; but it was sadly not accepted.  I
+still had a lot of fun writing in a totally different style than usual.
+Imagine the following has been printed out, scanned, and reprinted maybe five
+times.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.lexaloffle.com/pico-8.php&#34;&gt;Pico-8&lt;/a&gt; is a &amp;ldquo;fantasy console.&amp;rdquo;  It&amp;rsquo;s a
+reimagined 8-bit console sorta like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Commodore_64&#34;&gt;Commadore
+64&lt;/a&gt; but with
+&lt;a href=&#34;http://www.lua.org&#34;&gt;Lua&lt;/a&gt; as the primary language instead of BASIC.  It&amp;rsquo;s very
+fun to play with and I think anyone interested in making games would do well to
+get it, even if it&amp;rsquo;s nothing like real life games.  It takes away the
+superficial hurdles and lets you just build a game.  Anyway, without further
+ado, my article:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #272822&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #75715e&#34;&gt;-- pong&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--   &amp;lt;3 frew&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this is a simple pong game&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- written to learn pico-8 and&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- basic game programming.&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- the structure should be&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- fairly easy to understand,&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- but i&amp;#39;ll write out some&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- notes in these comments to&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- help others learn.&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;------------------------------&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- first off, we have the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- following two &amp;quot;player&amp;quot; or&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- &amp;quot;paddle&amp;quot; objects.  they have&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- six members each:&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  x      - the column&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  y      - the row&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  h      - the height&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  score&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  ai     - computer controlled&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--  player - which player&lt;/span&gt;
+
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;l&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;{&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;x&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt;  &lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;y&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;h&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;score&lt;/span&gt;  &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt;  &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;ai&lt;/span&gt;     &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;true&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;player&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;r&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;{&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;x&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;123&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;y&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;h&lt;/span&gt;      &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;score&lt;/span&gt;  &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt;  &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;ai&lt;/span&gt;     &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;true&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;player&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this is the first really&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- interesting piece of code.&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- for a given player, it will&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- move the player up or down&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- if the ball is not directly&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- across from the center.&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- you could improve this code&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- in a few easy ways.  first&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- off, you could make it try&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- to hit the ball with the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- edge of the paddle, which&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- is harder to anticipate.&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- you could also add some code&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- to make it move more&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- gracefully.  finally, you&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- could make it worse, so that&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- the player actually has a&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- chance!&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;do_ai&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(p,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.h&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;elseif&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.h&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this is pretty obvious code,&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- except for one part.  the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- main bit just moves the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- piece up or down based on&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- the button pressed.  but it&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- additionally maintains the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- &amp;#39;ai&amp;#39; member of the player,&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- and automatically calls the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- do_ai() function above if&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- the player is still an ai.&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;--&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- it might be fun to add a&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- button that would turn the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- ai back on after a player&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- took over for the ai.&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;update_player&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(p,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(btn(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.player)&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;or&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;btn(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.player))&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+    &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.ai&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;false&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.ai)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+    &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(btn(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.player))&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+    &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(btn(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.player))&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;else&lt;/span&gt;
+    &lt;span style=&#34;color: #f8f8f2&#34;&gt;do_ai(p,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- not too complicated, move&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- the ball up and over in the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- direction it is moving.&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;update_ball&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(b)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dy&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this function just puts the&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- ball back in the middle&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- after a point is scored.&lt;/span&gt;
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;middle&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.h&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;reset_ball&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(b)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.x&lt;/span&gt;  &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;50&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt;  &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;middle&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.h&lt;/span&gt;  &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dy&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- and we call it at the start&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- of the game too.&lt;/span&gt;
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;{}&lt;/span&gt;
+&lt;span style=&#34;color: #f8f8f2&#34;&gt;reset_ball(b)&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this is a pretty complex&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- function, but the code is&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- not that hard to understand.&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;intersection&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(l,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- calc_angle will be true&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- if a player hit the ball.&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;calc_angle&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;false&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- and p will be set to which&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- player hit the ball.&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;{}&lt;/span&gt;
+
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- ball passed left paddle&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.score&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;reset_ball(b)&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- ball passed right paddle&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;elseif&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;128&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.score&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;reset_ball(b)&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- ball hit ceiling or floor&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;elseif&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(&lt;/span&gt;
+    &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;or&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;128&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dy&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dy&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- ball hit left paddle&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;elseif&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;and&lt;/span&gt;
+      &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.h&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;and&lt;/span&gt;
+      &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.h&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.h&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;calc_angle&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;true&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- ball hit right paddle&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;elseif&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;and&lt;/span&gt;
+      &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.h&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;and&lt;/span&gt;
+      &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;lt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.h&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.h&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;calc_angle&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;true&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(calc_angle)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- every now and then&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- increase ball speed&lt;/span&gt;
+     &lt;span style=&#34;color: #66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(rnd(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0.9&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;then&lt;/span&gt;
+       &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dx&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;*=&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;rnd(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;0.01&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+     &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- this is complicated!&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- the first line scales&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- the location that the&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- ball hit the paddle&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- from zero to one.  so&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- if the ball hit the&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- paddle one third of the&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- way from the top, it&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- will be set to&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- circa 0.3&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;rl&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;(b.y&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;p.y)&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;p.h&lt;/span&gt;
+     
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- this basically makes it&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- as if the paddle were&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- part of a circle, so&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- that bouncing off the&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- middle is flat, the top&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- is a sharp angle, and&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- the bottom is a sharp&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- angle.  i had to look&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- up sin and cosine for&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- this, but it might be&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- just as easy to play&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- with the numbers till&lt;/span&gt;
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- you get what you want&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;rl&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;rl&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;/&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;0.25&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;angle&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;sin(rl)&lt;/span&gt;
+
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;b.dy&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;angle&lt;/span&gt;
+     
+     &lt;span style=&#34;color: #75715e&#34;&gt;-- boop&lt;/span&gt;
+     &lt;span style=&#34;color: #f8f8f2&#34;&gt;sfx(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- call all functions above&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;_update&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;()&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;update_player(l,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;update_player(r,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;update_ball(b)&lt;/span&gt;
+
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;intersection(l,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;b)&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #75715e&#34;&gt;-- this is pong, everything&lt;/span&gt;
+&lt;span style=&#34;color: #75715e&#34;&gt;-- is basically a square :)&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;drawshape&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;(s)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;rectfill(s.x&lt;/span&gt;  &lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;s.y&lt;/span&gt;    &lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+           &lt;span style=&#34;color: #f8f8f2&#34;&gt;s.x&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;s.y&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;s.h,&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;7&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+&lt;span style=&#34;color: #66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color: #a6e22e&#34;&gt;_draw&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;()&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;cls()&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;drawshape(l)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;drawshape(r)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;drawshape(b)&lt;/span&gt;
+
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- draw the dotted line in&lt;/span&gt;
+  &lt;span style=&#34;color: #75715e&#34;&gt;-- the middle of the field&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;30&lt;/span&gt; &lt;span style=&#34;color: #66d9ef&#34;&gt;do&lt;/span&gt;
+    &lt;span style=&#34;color: #f8f8f2&#34;&gt;rectfill(&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;64&lt;/span&gt;  &lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;  &lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;
+             &lt;span style=&#34;color: #ae81ff&#34;&gt;64&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt;  &lt;span style=&#34;color: #ae81ff&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+  &lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;print(l.score,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;l.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+  &lt;span style=&#34;color: #f8f8f2&#34;&gt;print(r.score,&lt;/span&gt; &lt;span style=&#34;color: #f8f8f2&#34;&gt;r.x&lt;/span&gt; &lt;span style=&#34;color: #f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #f8f8f2&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #66d9ef&#34;&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Here is the actual catridge; the code is embedded in the image:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://blog.afoolishmanifesto.com/static/img/pong.p8.png&#34; alt=&#34;pong&#34; /&gt;
+&lt;/p&gt;
+</description>
+      
+      <category>pong</category>
+      
+      <category>pico-8</category>
+      
+      <category>lua</category>
+      
+    </item>
+    
+    <item>
+      <title>Farewell, CPAN Contest</title>
+      <link>https://blog.afoolishmanifesto.com/posts/farewell-cpan-contest/</link>
+      <pubDate>Wed, 16 Dec 2015 12:48:24 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/farewell-cpan-contest</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://blog.afoolishmanifesto.com/posts/chains-of-gid/&#34;&gt;In August I write about being tired&lt;/a&gt; of &lt;a href=&#34;http://onceaweek.cjmweb.net/current&#34;&gt;The CPAN
+Contest&lt;/a&gt;.  I decided recently that once I
+hit 200 releases I&amp;rsquo;d stop and put my efforts elsewhere.&lt;/p&gt;
+
+&lt;p&gt;I am not giving up on CPAN or Perl; but I do not think timeboxed releases are
+best for individuals.  Though I am very pleased to be able to write, test, and
+document a new CPAN module over the course of a couple hours.&lt;/p&gt;
+
+&lt;h2 id=&#34;looking-back:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;Looking Back&lt;/h2&gt;
+
+&lt;p&gt;Now seems like a good time to look back on the past few years; both before the
+contest and during.&lt;/p&gt;
+
+&lt;p&gt;Here are some modules that I released before the contest started:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DBIx::Class::Helpers, including
+&lt;a href=&#34;https://metacpan.org/pod/release/FREW/DBIx-Class-Helpers-2.032000/lib/DBIx/Class/Helper/ResultSet/SetOperations.pm&#34;&gt;::ResultSet::SetOperations&lt;/a&gt;,
+which is still the only way to do &lt;code&gt;UNION&lt;/code&gt;s etc in DBIx::Class.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/release/FREW/Log-Contextual-0.006005/lib/Log/Contextual.pm&#34;&gt;Log::Contextual&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/release/FREW/DBIx-Class-DeploymentHandler-0.002218/lib/DBIx/Class/DeploymentHandler.pm&#34;&gt;DBIx::Class::DeploymentHandler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/release/FREW/DBIx-Class-Candy-0.005001/lib/DBIx/Class/Candy.pm&#34;&gt;DBIx::Class::Candy&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I also wrote over a hundred blog posts; some classics are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.afoolishmanifesto.com/posts/dbix-class-extended-relationships/&#34;&gt;DBIx::Class Extended Relationships&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.afoolishmanifesto.com/posts/screen-scrape-for-love-with-web-scraper/&#34;&gt;Screen Scrape for Love with Web::Scraper&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.afoolishmanifesto.com/posts/the-rise-and-fall-of-mod_perl/&#34;&gt;The Rise and Fall of &lt;code&gt;mod_perl&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And I did some other unreleased work, like:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/frioux/Git-Conversions&#34;&gt;A huge amount of git migrations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/frioux/perlcritic-web&#34;&gt;A web view of Perl Critic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/frioux/teatime&#34;&gt;A weird app to track tea drinking&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Not bad!  Here are some modules that I released during the contest:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/release/FREW/DBIx-Introspector-0.001005/lib/DBIx/Introspector.pm&#34;&gt;DBIx::Introspector&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Many more DBIx::Class::Helpers, most especially
+&lt;a href=&#34;https://metacpan.org/pod/release/FREW/DBIx-Class-Helpers-2.032000/lib/DBIx/Class/Helper/ResultSet/DateMethods1.pm&#34;&gt;DBIx::Class::ResultSet::DateMethods1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/release/FREW/Sub-Exporter-Progressive-0.001011/lib/Sub/Exporter/Progressive.pm&#34;&gt;Sub::Exporter::Progressive&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And maybe one of the most interesting OSS things I&amp;rsquo;ve ever done:
+&lt;a href=&#34;https://github.com/frioux/drinkup&#34;&gt;drinkup&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;how-the-sausage-is-made-thanks:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;How The Sausage is Made / Thanks&lt;/h2&gt;
+
+&lt;p&gt;There are a number of tools that make the overall process of releasing new or
+updated modules as simple as possible.  A few spring to mind:&lt;/p&gt;
+
+&lt;h3 id=&#34;dist-zilla:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;&lt;code&gt;Dist::Zilla&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;Rik&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; was by and large the
+most motivating and generally helpful tool in this process.  No other tools even
+come close to providing the build time assistance that &lt;code&gt;Dist::Zilla&lt;/code&gt; does.  I
+remember when I released my very first CPAN module being incredibly intimidated
+by Module::Install (which I think I can look back on as a kind of lucky guess.)
+&lt;a href=&#34;https://metacpan.org/release/RJBS/Dist-Zilla-1.092680&#34;&gt;The version that I used&lt;/a&gt;
+was recent for the time, but four major versions have been released since then!&lt;/p&gt;
+
+&lt;p&gt;On top of &lt;code&gt;dzil&lt;/code&gt; I use a number of plugins, though not a huge amount.  If you
+want to see a definitive list, &lt;a href=&#34;https://metacpan.org/source/FREW/DBIx-Class-Candy-0.005001/dist.ini&#34;&gt;my current kit is shown
+here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;github-and-a-constellation-of-tools-surrounding-it:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;Github and a constellation of tools surrounding it&lt;/h3&gt;
+
+&lt;p&gt;I have released open source code on a bunch of platforms.  Until just now I&amp;rsquo;d
+never really considered how many.  I&amp;rsquo;ve used all of&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Sourceforge&lt;/li&gt;
+&lt;li&gt;Rubyforge&lt;/li&gt;
+&lt;li&gt;A Blog Post Containing All The Code&lt;/li&gt;
+&lt;li&gt;Google Code&lt;/li&gt;
+&lt;li&gt;Savannah&lt;/li&gt;
+&lt;li&gt;Github&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I remember when I signed up for Savannah they told me: &amp;ldquo;How about you write your
+code first, and then you can host it here.&amp;rdquo;  What a joke.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s crazy how many of those services are just gone now!&lt;/p&gt;
+
+&lt;p&gt;When I started using Github they didn&amp;rsquo;t even have issues, you had to use an
+ascillary service called &lt;a href=&#34;https://lighthouseapp.com/&#34;&gt;Lighthouse&lt;/a&gt;.  Anyway,
+Github provides a lot of awesome features but mostly for me it boils down to:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;I can create repos, forks, issues etc from the CLI (Using &lt;a href=&#34;https://github.com/ingydotnet/git-hub&#34;&gt;git
+hub&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;I can easily see my personal &amp;ldquo;todo list&amp;rdquo; at &lt;code&gt;https://github.com/issues&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The former means that I don&amp;rsquo;t have to deal with a bloated browser or web
+interface because I do this stuff so often.  In fact, when I come up with an
+idea for a new project my current process is:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;git hub repo-new frioux/My-Idea &amp;amp;&amp;amp; git hub issue-new frioux/My-Idea&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;And then it&amp;rsquo;ll show up in that central place.  Pretty cool huh?&lt;/p&gt;
+
+&lt;h3 id=&#34;testing:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;Testing&lt;/h3&gt;
+
+&lt;p&gt;Many have reasonably noted that CPAN Testers is one of the few things that Perl
+has and no other community has yet to emulate.  While that&amp;rsquo;s true, for the vast
+majority of people, actually testing on different platforms is overkill.  For
+most of my modules, I pay more attention to
+&lt;a href=&#34;https://travis-ci.org/frioux/&#34;&gt;TravisCI&lt;/a&gt;, as it will test all major versions of
+Perl every time I push.  Before each release I wait for travis tests to finish
+just in case I missed some odd Perl 5.8 thing.&lt;/p&gt;
+
+&lt;p&gt;On top of that, I have a &lt;a href=&#34;https://github.com/frioux/DBIx-Class-Helpers/blob/2555eb6263474b26fca96f861c02844d9481b121/maint/with-dbs&#34;&gt;powerful Docker
+setup&lt;/a&gt;
+for
+&lt;a href=&#34;https://metacpan.org/release/FREW/DBIx-Class-Helpers-2.032000&#34;&gt;DBIx::Class::Helpers&lt;/a&gt;
+that actually runs live tests against all of &lt;code&gt;SQLite&lt;/code&gt;, &lt;code&gt;mysql&lt;/code&gt;, &lt;code&gt;PostgreSQL&lt;/code&gt;,
+and &lt;code&gt;Oracle&lt;/code&gt;.  If you care to, you can even set environment variables to point
+at a &lt;code&gt;SQL Server&lt;/code&gt; instance as well, but I don&amp;rsquo;t do that and I suspect no one
+else does either.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-s-next:556d785054364e0aa0b2ccf72b3fdd0b&#34;&gt;What&amp;rsquo;s next?&lt;/h2&gt;
+
+&lt;p&gt;I want to spend less time on libraries and more time on applications, for one.
+It would be great if I were able to finally finish and use &lt;code&gt;drinkup&lt;/code&gt;, though as
+a parent I no longer have the time to really focus on cocktails like I used to.&lt;/p&gt;
+
+&lt;p&gt;I want to make some video games.&lt;/p&gt;
+
+&lt;p&gt;I want to get back to blogging on a weekly basis, whether the Iron Man software
+ever works or not.&lt;/p&gt;
+
+&lt;p&gt;I want to play more with weird languages like Rust and OCaml.&lt;/p&gt;
+
+&lt;p&gt;Most of all, I want to enjoy my limited free time.  If I do decide to write a
+module and publish it; great, but I don&amp;rsquo;t want it to be a chore.  I&amp;rsquo;d say &lt;em&gt;most&lt;/em&gt;
+of the time when I release a new module it is fun and maybe at least a tiny bit
+useful, but there are plenty of times when I&amp;rsquo;ve had to scrabble to come up with
+something to release.&lt;/p&gt;
+</description>
+      
+      <category>cpan</category>
+      
+      <category>perl</category>
+      
+    </item>
+    
+    <item>
+      <title>PID Namespaces in Linux</title>
+      <link>https://blog.afoolishmanifesto.com/posts/pid-namespaces-in-linux/</link>
+      <pubDate>Wed, 25 Nov 2015 20:32:03 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/pid-namespaces-in-linux</guid>
+      <description>&lt;p&gt;One of the tools I wrote shortly after joining
+&lt;a href=&#34;https://www.ziprecruiter.com&#34;&gt;ZipRecruiter&lt;/a&gt; is for managing a Selenium test
+harness.  It&amp;rsquo;s interesting because there are a lot of constraints related to
+total capacity of the host, desired speed of the test suite, and desired
+correctness of the codebase.&lt;/p&gt;
+
+&lt;p&gt;Anyway one of the major issues that I found was if I stopped a test prematurely
+(with Ctrl-C, which sends a SIGINT) I&amp;rsquo;d end up with a bunch of orphaned workers.
+My intial idea was to just forward along any signal that the process received to
+the child workers (minus some obvious ones like CHLD and WINCH) but that ended
+up causing problems, because the workers had many children of their own and they
+did not handle the situation correctly either.&lt;/p&gt;
+
+&lt;p&gt;There are a couple ways to do this.  The first way is I &lt;em&gt;think&lt;/em&gt; portable across
+unices; this involves giving the main process a TTY of it&amp;rsquo;s own.  This will send
+all child processes (recursively, I think) a SIGHUP (as in the TTY hung up) when
+the main process exits.  Here&amp;rsquo;s the code, it&amp;rsquo;s pretty easy to do in Perl, though
+I have not gone through the effort to figure out how to do it with vanilla
+shell.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;use IO::Pty;
+
+my $pty = IO::Pty-&amp;gt;new;
+$pty-&amp;gt;make_slave_controlling_terminal;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The other way, which you may have guessed if you read the title of this post, is
+using a Linux PID namespace.  In a PID namespace you basically start a process
+and it sees itself as PID 1 (aka init).  All child processes are in the
+namespace as well and will have similarly &amp;ldquo;low&amp;rdquo; PIDs themselves.  This is not
+really interesting for our use case.  The interesting thing is, if PID 1 of a
+Linux PID namespace exits, all children get a SIGKILL.  Unlike SIGHUP, SIGKILL
+cannot be ignored, and the processes will definitely go away, and it will be
+immediate (unless they are in uninteruptable sleep I guess.)&lt;/p&gt;
+
+&lt;p&gt;PID namespaces have been around for like, forever (2008, which at this point is
+nearly eight years.)  The problem is you can only create one as root, which is a
+hassle to say the very least.  Now if you create a user namespace you do not
+need root, but that requires Linux 3.8, which is from 2013; pretty recent!
+Here&amp;rsquo;s an example of how to start a program in a PID namespace:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unshare --pid --user --mount --mount-proc --fork ./my-app
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first two flags should be obvious.  The mount related flags are so that the
+processes inside of the namespace can read from &lt;code&gt;/proc&lt;/code&gt; and find out about
+whatever details they might need to know.  If you are sure your processes never
+read from &lt;code&gt;/proc&lt;/code&gt; you can safely elide those flags. The fork flag is because
+creating the pid namespace around a running process doesn&amp;rsquo;t really work.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;unshare&lt;/code&gt; comes from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Util-linux&#34;&gt;util-linux&lt;/a&gt;
+package, which any real (read: non-embedded) Linux distro ships with.  To be
+clear: the above command is &lt;em&gt;really&lt;/em&gt; light weight.  The meat of it clocks in at
+two system calls (&lt;code&gt;unshare&lt;/code&gt; and &lt;code&gt;clone&lt;/code&gt;.)  The whole thing adds about 5ms to
+runtime.  I think of &lt;code&gt;unshare&lt;/code&gt; as a much more powerful &lt;code&gt;fork&lt;/code&gt;.  At some point I
+would like to make using it from within a language as easy as &lt;code&gt;fork&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you want to try this out, I&amp;rsquo;ve &lt;a href=&#34;https://github.com/frioux/container-play/&#34;&gt;written more including some test scripts on
+github&lt;/a&gt;.&lt;/p&gt;
+</description>
+      
+      <category>linux</category>
+      
+      <category>namespaces</category>
+      
+      <category>cgroups</category>
+      
+    </item>
+    
+    <item>
+      <title>Dream On Dreamer</title>
+      <link>https://blog.afoolishmanifesto.com/posts/dream-on-dreamer/</link>
+      <pubDate>Sat, 21 Nov 2015 02:29:32 UTC</pubDate>
+      <author>Arthur Axel fREW Schmidt</author>
+      <guid>https://blog.afoolishmanifesto.com/posts/dream-on-dreamer</guid>
+      <description>&lt;p&gt;I can&amp;rsquo;t speak for others, but I was pretty inspired as a teenager.  What I&amp;rsquo;d do
+is read random stuff throughout the week, then listen to some kind of music or
+watch a movie on Friday, and do my best to stay up all night and use what I&amp;rsquo;d
+learned to make something new.&lt;/p&gt;
+
+&lt;p&gt;For the most part, as a teenager, I failed.  As with most teenagers, I was
+pretty much worthless.  But that&amp;rsquo;s part of what ended up making me who I am
+today!&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m tired of using my free time feeling like I should be Accomplishing Something
+of Value to the Corporate World.  I have six weeks to go before reaching 200
+weeks in The CPAN Contest.  That seems like a good time to stop.&lt;/p&gt;
+
+&lt;p&gt;After that, I expect to write more blog posts.  The blog posts will be weird,
+maybe color coded.  They will likely be less about code and more about
+Buckethead or A Really Good Movie.&lt;/p&gt;
+
+&lt;p&gt;Are you inspired?  What inspires you?  Why aren&amp;rsquo;t you inspired?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Dream on dreamer, starchild
+Open your mind carefully
+Dream on dreamer, ride home
+Dreamshades changing endlessly
+
+Enter worlds no one has seen
+All at your command in your dreams
+
+Sinking deeper, letting go
+Let the story take you in
+Dream on dreamer, fly home
+Let the dream of dreams begin
+
+Enter worlds no one has seen
+All at your command in your dreams
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+      
+      <category>inspired</category>
+      
+      <category>late</category>
+      
+      <category>buckethead</category>
+      
+      <category>flower kings</category>
+      
+    </item>
+    
+  </channel>
+</rss>

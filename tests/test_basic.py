@@ -87,5 +87,14 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(type(FeedPipe().cat([ATOM10, RSS10]).as_xml()),
                          type("station"))
 
+    def test_tail(self):
+        feed = open('tests/eg.xml').read()
+
+        fp = FeedPipe().cat([feed]).tail(2)
+        a = fp.as_atom_obj()
+        self.assertEqual(a.entries[0].title.text, 'PID Namespaces in Linux')
+        self.assertEqual(a.entries[1].title.text, 'Dream On Dreamer')
+        self.assertEqual(fp.count(), 2)
+
 if __name__ == '__main__':
     unittest.main()
