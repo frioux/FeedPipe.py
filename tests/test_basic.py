@@ -96,5 +96,15 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(a.entries[1].title.text, 'Dream On Dreamer')
         self.assertEqual(fp.count(), 2)
 
+    def test_head(self):
+        feed = open('tests/eg.xml').read()
+
+        fp = FeedPipe().cat([feed]).head(2)
+        a = fp.as_atom_obj()
+        self.assertEqual(a.entries[0].title.text,
+                         'Migrating My Blog from Linode to CloudFront')
+        self.assertEqual(a.entries[1].title.text, 'UCSPI')
+        self.assertEqual(fp.count(), 2)
+
 if __name__ == '__main__':
     unittest.main()
