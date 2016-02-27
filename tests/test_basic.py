@@ -81,5 +81,11 @@ class TestStringMethods(unittest.TestCase):
     def test_count(self):
         self.assertEqual(FeedPipe().cat([ATOM10, RSS10]).count(), 2)
 
+    # not testing the actual XML as this module delegates that elsewhere, but
+    # instead verifies return type and at least runs the code
+    def test_xml(self):
+        self.assertEqual(type(FeedPipe().cat([ATOM10, RSS10]).as_xml()),
+                         type("station"))
+
 if __name__ == '__main__':
     unittest.main()
