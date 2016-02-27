@@ -257,7 +257,7 @@ class FeedPipe(object):
 
         return str(xmldoc)
 
-    def count():
+    def count(self):
         """
         Returns the count of the entries in the FeedPipe.
 
