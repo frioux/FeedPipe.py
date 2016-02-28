@@ -4,3 +4,4 @@ build
 dist
 bugs.egg-info
 README.html
+doc

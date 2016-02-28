@@ -1,0 +1,3 @@
+.. automodule:: feedpipe
+   :members:
+

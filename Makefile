@@ -13,6 +13,9 @@ clean:
 clobber: clean
 	rm -rf *.egg
 
+doc:
+	PYTHONPATH=. sphinx-build -b html . doc
+
 validate:
 	python -m flake8 ${PROJECT}.py tests
 
