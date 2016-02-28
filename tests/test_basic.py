@@ -56,7 +56,7 @@ Americans are fat. Smokers are stupid. People who don't speak Perl are irrelevan
 """  # NOQA
 
 
-class TestStringMethods(unittest.TestCase):
+class TestBasic(unittest.TestCase):
 
     def _check_feed(self, fp):
         dom = fp.as_atom_obj()
@@ -150,6 +150,21 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(
             a.entries[1].title.text, '[STATION] UCSPI'
         )
+
+    def test_grep(self):
+        feed = open('tests/eg.xml').read()
+
+        fp = FeedPipe().cat([feed]).grep(lambda e: 'e' in e.title.text)
+        a = fp.as_atom_obj()
+        self.assertEqual(
+            a.entries[0].title.text,
+            'Migrating My Blog from Linode to CloudFront'
+        )
+        self.assertEqual(
+            a.entries[1].title.text,
+            'Checking sudoers with visudo in SaltStack'
+        )
+        self.assertEqual(fp.count(), 5)
 
 if __name__ == '__main__':
     unittest.main()
