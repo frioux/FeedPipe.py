@@ -159,7 +159,7 @@ class FeedPipe(object):
             transform -- a callback that takes an entry and returns it,
                          possibly modified
         """
-        self.entries = [filter(x) for x in self.entries]
+        self.entries = [transform(x) for x in self.entries]
 
         return self
 

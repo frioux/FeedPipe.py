@@ -134,5 +134,22 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(a.entries[1].title.text,
                          'PID Namespaces in Linux')
 
+    def test_map(self):
+        feed = open('tests/eg.xml').read()
+
+        def prepend_name(e):
+            e.title = '[STATION] ' + e.title.text
+            return e
+
+        fp = FeedPipe().cat([feed]).map(prepend_name)
+        a = fp.as_atom_obj()
+        self.assertEqual(
+            a.entries[0].title.text,
+            '[STATION] Migrating My Blog from Linode to CloudFront'
+        )
+        self.assertEqual(
+            a.entries[1].title.text, '[STATION] UCSPI'
+        )
+
 if __name__ == '__main__':
     unittest.main()
