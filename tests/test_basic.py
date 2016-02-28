@@ -124,5 +124,15 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(a.entries[1].title.text,
                          'UCSPI')
 
+    def test_reverse(self):
+        feed = open('tests/eg.xml').read()
+
+        fp = FeedPipe().cat([feed]).reverse()
+        a = fp.as_atom_obj()
+        self.assertEqual(a.entries[0].title.text,
+                         'Dream On Dreamer')
+        self.assertEqual(a.entries[1].title.text,
+                         'PID Namespaces in Linux')
+
 if __name__ == '__main__':
     unittest.main()
