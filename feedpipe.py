@@ -175,32 +175,26 @@ class FeedPipe(object):
 
         return self
 
-    def _default_sorter(a, b):
-        if 'updated' in a:
-            left = a.updated
-        elif 'published' in a:
-            left = a.published
+    def _default_key(e):
+        if e.updated:
+            return e.updated.text
+        elif e.published:
+            return e.published.text
 
-        if 'updated' in b:
-            right = b.updated
-        elif 'published' in b:
-            right = b.published
-
-        return left < right
-
-    def sort(self, sorter=_default_sorter):
+    def sort(self, cmp=None, key=_default_key, reverse=True):
         """
         Sorts the entries in the FeedPipe.  Returns self for chaining.
 
-            fp.sort(lambda a, b: a.title < b.title)
+            fp.sort(key='title')
 
         Arguments:
-            sorter -- callback taking two parameters; conforms to the interface
-            defined by
-            [list.sort](https://docs.python.org/2/tutorial/datastructures.html#more-on-lists)'s
-            cmp.  Default is to sort by updated/published.
+            cmp, key, and reverse; matches the interface of [the sorter
+            builtin](https://docs.python.org/2/library/functions.html#sorted).
+            key defaults to updated/published and reverse defaults to True, so
+            that the default sort is newest at the beginning.
         """
-        self.entries.sort(cmp=sorter)
+
+        self.entries.sort(cmp=cmp, key=key, reverse=reverse)
 
         return self
 

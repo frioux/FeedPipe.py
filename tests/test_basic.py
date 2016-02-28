@@ -106,5 +106,23 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(a.entries[1].title.text, 'UCSPI')
         self.assertEqual(fp.count(), 2)
 
+    def test_sort(self):
+        feed = open('tests/eg.xml').read()
+
+        fp = FeedPipe().cat([feed]).sort(key=lambda e: e.title.text,
+                                         reverse=False)
+        a = fp.as_atom_obj()
+        self.assertEqual(a.entries[0].title.text,
+                         'Announcing cgid')
+        self.assertEqual(a.entries[1].title.text,
+                         'Checking sudoers with visudo in SaltStack')
+
+        fp.sort()
+        a = fp.as_atom_obj()
+        self.assertEqual(a.entries[0].title.text,
+                         'Migrating My Blog from Linode to CloudFront')
+        self.assertEqual(a.entries[1].title.text,
+                         'UCSPI')
+
 if __name__ == '__main__':
     unittest.main()
