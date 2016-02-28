@@ -6,7 +6,6 @@ from uuid import uuid4
 from datetime import datetime
 
 
-# TODO: document entry objects better (or better yet, make Steve do it.)
 class FeedPipe(object):
     """ FeedPipe is a tool to mutate feeds; it's your very own Yahoo Pipes.
 
@@ -65,7 +64,6 @@ class FeedPipe(object):
 
         self.entries = []
 
-    # TODO: this should be lazily pulled?
     def cat(self, feeds):
         """Adds list of new entry_ objects to the FeedPipe
 
@@ -86,7 +84,6 @@ class FeedPipe(object):
         Returns:
             self: you know, for chaining!
         """
-        # TODO: *actually* make this handle all the stuff documented above
         for feed in feeds:
             data = feedparser.parse(feed)
 
@@ -102,7 +99,6 @@ class FeedPipe(object):
                     entry.updated = e.updated
 
                 if 'content' in e:
-                    # TODO: this is sketchy
                     entry.content = e.content[0].value
 
                 if 'link' in e:
@@ -116,17 +112,10 @@ class FeedPipe(object):
                     try:
                         entry.published = e.published
                     except ValueError:
-                        # TODO: this is the worst
                         entry.published = datetime.strptime(
                             e.published, '%a, %d %b %Y %H:%M:%S %Z'
                         ).isoformat()
 
-                # TODO: Fix these
-                # entry.author =
-                # entry.category =
-                # entry.contributor =
-                # entry.source =
-                # entry.rights =
                 self.entries.append(entry)
 
         return self
