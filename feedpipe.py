@@ -70,14 +70,16 @@ class FeedPipe(object):
 
         .. _feed:
 
-            * Filenames start with . or / (`/foo/bar/baz`, or `./foo`)
-            * URLs start with http:// or https://
-            * Preparsed Data Strucutres will have type() of foo
-            * Everything else is assumed to be a string containing XML
+            * Filenames
+            * URLs
+            * a string containing XML
 
         Example::
 
-            fp.cat(['https://blog.afoolishmanifesto.com/index.xml'])
+            fp.cat([
+                'https://blog.afoolishmanifesto.com/index.xml',
+                './foo.xml',
+            ])
 
         Args:
             feeds (List[feed_]): an array of feeds

@@ -88,18 +88,14 @@ class TestBasic(unittest.TestCase):
                          type("station"))
 
     def test_tail(self):
-        feed = open('tests/eg.xml').read()
-
-        fp = FeedPipe().cat([feed]).tail(2)
+        fp = FeedPipe().cat(['tests/eg.xml']).tail(2)
         a = fp.as_atom_obj()
         self.assertEqual(a.entries[0].title.text, 'PID Namespaces in Linux')
         self.assertEqual(a.entries[1].title.text, 'Dream On Dreamer')
         self.assertEqual(fp.count(), 2)
 
     def test_head(self):
-        feed = open('tests/eg.xml').read()
-
-        fp = FeedPipe().cat([feed]).head(2)
+        fp = FeedPipe().cat(['tests/eg.xml']).head(2)
         a = fp.as_atom_obj()
         self.assertEqual(a.entries[0].title.text,
                          'Migrating My Blog from Linode to CloudFront')
@@ -107,10 +103,8 @@ class TestBasic(unittest.TestCase):
         self.assertEqual(fp.count(), 2)
 
     def test_sort(self):
-        feed = open('tests/eg.xml').read()
-
-        fp = FeedPipe().cat([feed]).sort(key=lambda e: e.title.text,
-                                         reverse=False)
+        fp = FeedPipe().cat(['tests/eg.xml']) \
+                .sort(key=lambda e: e.title.text, reverse=False)
         a = fp.as_atom_obj()
         self.assertEqual(a.entries[0].title.text,
                          'Announcing cgid')
@@ -125,9 +119,7 @@ class TestBasic(unittest.TestCase):
                          'UCSPI')
 
     def test_reverse(self):
-        feed = open('tests/eg.xml').read()
-
-        fp = FeedPipe().cat([feed]).reverse()
+        fp = FeedPipe().cat(['tests/eg.xml']).reverse()
         a = fp.as_atom_obj()
         self.assertEqual(a.entries[0].title.text,
                          'Dream On Dreamer')
@@ -135,13 +127,11 @@ class TestBasic(unittest.TestCase):
                          'PID Namespaces in Linux')
 
     def test_map(self):
-        feed = open('tests/eg.xml').read()
-
         def prepend_name(e):
             e.title = '[STATION] ' + e.title.text
             return e
 
-        fp = FeedPipe().cat([feed]).map(prepend_name)
+        fp = FeedPipe().cat(['tests/eg.xml']).map(prepend_name)
         a = fp.as_atom_obj()
         self.assertEqual(
             a.entries[0].title.text,
@@ -152,9 +142,9 @@ class TestBasic(unittest.TestCase):
         )
 
     def test_grep(self):
-        feed = open('tests/eg.xml').read()
-
-        fp = FeedPipe().cat([feed]).grep(lambda e: 'e' in e.title.text)
+        fp = FeedPipe() \
+                .cat(['./tests/eg.xml']) \
+                .grep(lambda e: 'e' in e.title.text)
         a = fp.as_atom_obj()
         self.assertEqual(
             a.entries[0].title.text,
