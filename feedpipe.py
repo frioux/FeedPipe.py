@@ -101,6 +101,9 @@ class FeedPipe(object):
                 if 'updated' in e:
                     entry.updated = e.updated
 
+                if 'author' in e:
+                    entry.author = FA.Author(e.author)
+
                 if 'content' in e:
                     entry.content = e.content[0].value
 
@@ -110,6 +113,13 @@ class FeedPipe(object):
 
                 if 'summary' in e:
                     entry.summary = e.summary
+
+                if 'tags' in e:
+                    entry.categories = FA.Collection(
+                        FA.Category(tag.term,
+                                    scheme=tag.scheme,
+                                    label=tag.label)
+                        for tag in e.tags)
 
                 if 'published' in e:
                     try:
