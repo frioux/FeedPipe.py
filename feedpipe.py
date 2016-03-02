@@ -48,6 +48,18 @@ class FeedPipe(object):
             * summary
             * published
 
+    Bugs:
+        Currently not all of `Atom 1.0
+        <http://atomenabled.org/developers/syndication/>`_, which the feeds are
+        translated to, is supported.  Specifically the following fields are not
+        translated:
+
+            * contributor
+            * source
+            * rights
+
+        Patches to support them very welcome.
+
     """
     def __init__(self,
                  title="Combined Feed",
