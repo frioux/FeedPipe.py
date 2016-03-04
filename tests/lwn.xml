@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns="http://purl.org/rss/1.0/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:syn="http://purl.org/rss/1.0/modules/syndication/"
+>
+
+  <channel rdf:about="http://lwn.net/headlines/rss">
+    <title>LWN.net</title>
+    <link>http://lwn.net</link>
+    <description>
+ LWN.net is a comprehensive source of news and opinions from
+        and about the Linux community.  This is the main LWN.net feed,
+        listing all articles which are posted to the site front page.
+
+    </description>
+
+    <syn:updatePeriod>hourly</syn:updatePeriod>
+    <syn:updateFrequency>2</syn:updateFrequency>
+    <items>
+      <rdf:Seq>
+	<rdf:li resource="http://lwn.net/Articles/679172/rss" />
+	<rdf:li resource="http://lwn.net/Articles/679170/rss" />
+	<rdf:li resource="http://lwn.net/Articles/679118/rss" />
+	<rdf:li resource="http://lwn.net/Articles/679053/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678852/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678806/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678770/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678693/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678673/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678670/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678608/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678561/rss" />
+	<rdf:li resource="http://lwn.net/Articles/677399/rss" />
+	<rdf:li resource="http://lwn.net/Articles/678385/rss" />
+	<rdf:li resource="http://lwn.net/Articles/677764/rss" />
+      
+      </rdf:Seq>
+    </items>
+
+  </channel>
+    <item rdf:about="http://lwn.net/Articles/679172/rss">
+      <title>Open source math software competes in the classroom (Opensource.com)</title>
+      <link>http://lwn.net/Articles/679172/rss</link>
+      <dc:date>2016-03-07T23:52:44+00:00</dc:date>
+      <dc:creator>ris</dc:creator>
+      <description>
+      William Stein &lt;a
+href=&quot;https://opensource.com/education/16/3/sagemath&quot;&gt;introduces
+SageMath&lt;/a&gt;, a mathematical software system for researchers, teachers,
+computer programmers, and engineers.  &quot;&lt;span&gt;I wanted SageMath to be a powerful tool for my students. It wasn't initially intended to be something hundred of thousands of people used! But as I began building the project, and as more professors and students started contributing to it, I realized these were problems many others were striving to solve as well. SageMath was desperately needed, and that wide interest became the driving force behind getting it up and off the ground. Over 500 contributors have participated and help make SageMath a real solution avaliable to students and teachers around the world.&lt;/span&gt;&quot;
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/679170/rss">
+      <title>Microsoft announces SQL Server for Linux</title>
+      <link>http://lwn.net/Articles/679170/rss</link>
+      <dc:date>2016-03-07T23:26:36+00:00</dc:date>
+      <dc:creator>corbet</dc:creator>
+      <description>
+      For all of you who have been wanting SQL Server for Linux, &lt;a
+href=&quot;https://blogs.microsoft.com/blog/2016/03/07/announcing-sql-server-on-linux/&quot;&gt;the
+long wait is over&lt;/a&gt;, or will be around the middle of 2017 (a preview is
+available now).  &quot;&lt;span&gt;'SQL Server’s proven enterprise experience and
+capabilities offer a valuable asset to enterprise Linux customers around
+the world,' said Paul Cormier, President, Products and Technologies, Red
+Hat. 'We believe our customers will welcome this news and are happy to see
+Microsoft further increasing its investment in Linux.'&lt;/span&gt;&quot;
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/679118/rss">
+      <title>Security advisories for Monday</title>
+      <link>http://lwn.net/Articles/679118/rss</link>
+      <dc:date>2016-03-07T17:50:20+00:00</dc:date>
+      <dc:creator>ris</dc:creator>
+      <description>
+      &lt;p&gt;&lt;b&gt;Arch Linux&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679087/&quot;&gt;lib32-openssl&lt;/a&gt; (multiple vulnerabilities) and &lt;a href=&quot;http://lwn.net/Articles/679088/&quot;&gt;openssl&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Debian&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/679089/&quot;&gt;chromium-browser&lt;/a&gt; (multiple vulnerabilities),
+&lt;a href=&quot;http://lwn.net/Articles/679090/&quot;&gt;jasper&lt;/a&gt; (multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/679091/&quot;&gt;libav&lt;/a&gt; (multiple vulnerabilities), and &lt;a href=&quot;http://lwn.net/Articles/679092/&quot;&gt;wireshark&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Fedora&lt;/b&gt; has updated &lt;b&gt;drupal6&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/679094/&quot;&gt;F23&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/679093/&quot;&gt;F22&lt;/a&gt;:
+multiple vulnerabilities), &lt;a href=&quot;http://lwn.net/Articles/679095/&quot;&gt;exiv2&lt;/a&gt; (F22:
+denial of service), &lt;a href=&quot;http://lwn.net/Articles/679096/&quot;&gt;kernel&lt;/a&gt; (F22: multiple
+vulnerabilities), &lt;a href=&quot;http://lwn.net/Articles/679097/&quot;&gt;mariadb&lt;/a&gt; (F22: multiple
+vulnerabilities), &lt;a href=&quot;http://lwn.net/Articles/679099/&quot;&gt;php&lt;/a&gt; (F23: multiple
+vulnerabilities), and &lt;a href=&quot;http://lwn.net/Articles/679100/&quot;&gt;xen&lt;/a&gt; (F22: denial of service).
+
+&lt;p&gt;&lt;b&gt;Gentoo&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679101/&quot;&gt;gimp&lt;/a&gt; (command execution) and &lt;a href=&quot;http://lwn.net/Articles/679102/&quot;&gt;osc&lt;/a&gt; (command injection).
+
+&lt;p&gt;&lt;b&gt;Mageia&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679103/&quot;&gt;graphite2&lt;/a&gt; (unspecified vulnerabilities), &lt;a href=&quot;http://lwn.net/Articles/679104/&quot;&gt;python-django&lt;/a&gt; (two vulnerabilities), &lt;a href=&quot;http://lwn.net/Articles/679105/&quot;&gt;squid&lt;/a&gt; (denial of service), and &lt;a href=&quot;http://lwn.net/Articles/679106/&quot;&gt;xen&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;openSUSE&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679107/&quot;&gt;Chromium&lt;/a&gt;
+(Leap42.1: multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/679108/&quot;&gt;nghttp2&lt;/a&gt; (Leap42.1: denial of service),
+&lt;b&gt;phpMyAdmin&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/679109/&quot;&gt;Leap42.1, 13.2&lt;/a&gt;; &lt;a
+href=&quot;http://lwn.net/Articles/679110/&quot;&gt;13.1&lt;/a&gt;: cross-site scripting), &lt;a
+href=&quot;http://lwn.net/Articles/679111/&quot;&gt;pigz&lt;/a&gt; (13.1: directory traversal), and
+&lt;b&gt;wireshark&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/679112/&quot;&gt;Leap42.1, 13.2&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/679113/&quot;&gt;13.1&lt;/a&gt;: multiple dissector crashes).
+
+&lt;p&gt;&lt;b&gt;Red Hat&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/679085/&quot;&gt;chromium-browser&lt;/a&gt; (RHEL6: multiple
+vulnerabilities) and &lt;a href=&quot;http://lwn.net/Articles/679086/&quot;&gt;openstack-glance&lt;/a&gt;
+(RHELOSP5&amp;nbsp;for&amp;nbsp;RHEL6: authorization bypass).
+
+&lt;p&gt;&lt;b&gt;SUSE&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679114/&quot;&gt;Chromium&lt;/a&gt;
+(SPH&amp;nbsp;for&amp;nbsp;SLE12: multiple vulnerabilities) and &lt;a
+href=&quot;http://lwn.net/Articles/679115/&quot;&gt;Xen&lt;/a&gt; (SLES10-SP4: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Ubuntu&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/679116/&quot;&gt;squid3&lt;/a&gt; (two
+vulnerabilities) and &lt;a href=&quot;http://lwn.net/Articles/679117/&quot;&gt;python-django&lt;/a&gt; (15.10,
+14.04: regression in previous update).
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/679053/rss">
+      <title>Kernel prepatch 4.5-rc7</title>
+      <link>http://lwn.net/Articles/679053/rss</link>
+      <dc:date>2016-03-07T01:39:11+00:00</dc:date>
+      <dc:creator>corbet</dc:creator>
+      <description>
+      Linus has released &lt;a href=&quot;http://lwn.net/Articles/679052/&quot;&gt;4.5-rc7&lt;/a&gt; and has
+indicated that things seem to be on track for a final release next week.  &quot;&lt;span&gt;So things have finally calmed down this past week, and I think we'll
+end up with a normal release where rc7 is the last rc.&lt;/span&gt;&quot;
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678852/rss">
+      <title>MAME is now Free and Open Source Software</title>
+      <link>http://lwn.net/Articles/678852/rss</link>
+      <dc:date>2016-03-04T21:01:00+00:00</dc:date>
+      <dc:creator>n8willis</dc:creator>
+      <description>
+      &lt;p&gt;The MAME (Multiple Arcade Machine Emulator) project has &lt;a
+href=&quot;http://mamedev.org/?p=422&quot;&gt;announced&lt;/a&gt; a license change,
+moving from the old, unique &quot;MAME License&quot; to the GNU GPLv2-or-later
+for the full codebase, with many individual components available under
+the 3-clause BSD License.  The announcement notes that a considerable
+effort went into the relicensing process: &quot;&lt;span&gt;We have spent the
+last 10 months trying to contact all people that contributed to MAME
+as developers and external contributors and get information about
+desired license.&lt;/span&gt;&quot;  The old &lt;a
+href=&quot;http://web.archive.org/web/20160303172015/http://mamedev.org/legal.html&quot;&gt;license
+[Wayback link]&lt;/a&gt; had prohibited commercial sale and use.
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678806/rss">
+      <title>Friday's security updates</title>
+      <link>http://lwn.net/Articles/678806/rss</link>
+      <dc:date>2016-03-04T17:33:36+00:00</dc:date>
+      <dc:creator>n8willis</dc:creator>
+      <description>
+      &lt;p&gt;&lt;b&gt;Arch Linux&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678792/&quot;&gt;chromium&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Debian&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678793/&quot;&gt;bsh&lt;/a&gt;
+(command execution),
+&lt;a href=&quot;http://lwn.net/Articles/678794/&quot;&gt;ctdb&lt;/a&gt; (denial of service), &lt;a
+href=&quot;http://lwn.net/Articles/678795/&quot;&gt;kernel&lt;/a&gt; (multiple vulnerabilities), and &lt;a
+href=&quot;http://lwn.net/Articles/678796/&quot;&gt;roundup&lt;/a&gt; (information leak). 
+
+&lt;p&gt;&lt;b&gt;Debian-LTS&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/678797/&quot;&gt;squid3&lt;/a&gt; (denial of service; reversion fix).
+
+&lt;p&gt;&lt;b&gt;Fedora&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678798/&quot;&gt;exiv2&lt;/a&gt;
+(F23: denial of service), &lt;a href=&quot;http://lwn.net/Articles/678799/&quot;&gt;openssl&lt;/a&gt; (F23: multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678800/&quot;&gt;pcs&lt;/a&gt; (F23: multiple vulnerabilities), and &lt;a
+href=&quot;http://lwn.net/Articles/678801/&quot;&gt;perl&lt;/a&gt; (F23: ambiguous environment). 
+
+&lt;p&gt;&lt;b&gt;Mageia&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678802/&quot;&gt;samba&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;openSUSE&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678803/&quot;&gt;eog&lt;/a&gt;
+(13.2, Leap 42.1: code execution) and &lt;a
+href=&quot;http://lwn.net/Articles/678804/&quot;&gt;pigz&lt;/a&gt; (13.2: directory traversal). 
+
+&lt;p&gt;&lt;b&gt;Red Hat&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/678789/&quot;&gt;kubernetes&lt;/a&gt; (RHOSE 3: multiple vulnerabilities) and
+&lt;b&gt;openstack-glance&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/678790/&quot;&gt;RHEL7 OSP5&lt;/a&gt;; &lt;a
+href=&quot;http://lwn.net/Articles/678791/&quot;&gt;RHEL7 OSP7&lt;/a&gt;: authorization bypass). 
+
+&lt;p&gt;&lt;b&gt;Ubuntu&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678805/&quot;&gt;jasper&lt;/a&gt;
+(12.04, 14.04, 15.10: multiple vulnerabilities).
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678770/rss">
+      <title>Debian &quot;Stretch&quot; release delayed slightly</title>
+      <link>http://lwn.net/Articles/678770/rss</link>
+      <dc:date>2016-03-04T15:31:07+00:00</dc:date>
+      <dc:creator>corbet</dc:creator>
+      <description>
+      The Debian &quot;Stretch&quot; release isn't expected for more than a year, but it
+just has been pushed back a couple of months, with the full freeze now
+scheduled for February&amp;nbsp;5 of next year.  The reason is to be able to
+ship with the first kernel of the year (expected to be 4.10) that, by
+current plans, should be a long-term support release.
+&quot;&lt;span&gt;For the avoidance of doubt, this change is a one-off to align with
+an expected release of Linux only. We aren't in a position to try
+and accommodate other projects, however much we'd like to be able
+to.&lt;/span&gt;&quot;
+
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678693/rss">
+      <title>Stable kernels 4.4.4, 3.14.63, and 3.10.99</title>
+      <link>http://lwn.net/Articles/678693/rss</link>
+      <dc:date>2016-03-04T01:13:02+00:00</dc:date>
+      <dc:creator>jake</dc:creator>
+      <description>
+      Greg Kroah-Hartman has announced the release of the &lt;a
+href=&quot;http://lwn.net/Articles/678694/&quot;&gt;4.4.4&lt;/a&gt;, &lt;a
+href=&quot;http://lwn.net/Articles/678695/&quot;&gt;3.14.63&lt;/a&gt;, and &lt;a
+href=&quot;http://lwn.net/Articles/678696/&quot;&gt;3.10.99&lt;/a&gt; stable kernels.  As usual, they
+contain fixes throughout the tree and users should upgrade.
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678673/rss">
+      <title>Announcing the KDE community's Distribution Outreach Program (KDE.news)</title>
+      <link>http://lwn.net/Articles/678673/rss</link>
+      <dc:date>2016-03-03T22:25:05+00:00</dc:date>
+      <dc:creator>jake</dc:creator>
+      <description>
+      KDE.news has an &lt;a href=&quot;https://dot.kde.org/2016/03/03/announcing-kde-communitys-distribution-outreach-program&quot;&gt;announcement&lt;/a&gt; of a new program to foster better cooperation between KDE and distributions. &quot;&lt;span&gt;&lt;b&gt;KDE is &lt;i&gt;distro-agnostic&lt;/i&gt;&lt;/b&gt;. We do not prefer any distributions over others, and want our software to run everywhere. This extends beyond Linux; we want our software to work for our users on Windows, Mac, BSD and Android as well. Our focus is always on our users having the best experience possible.
+
+&lt;b&gt;We are aware that the more closely we cooperate, the better the experience for all&lt;/b&gt;, including those who package our software, and we think that open and free communication is the best way to cooperate. KDE developers should be able to tell distributions what our software needs from a distribution in order to work best. And in turn, distributions should be able to tell us what makes our software easy to distribute. &lt;/span&gt;&quot;  A new &lt;a href=&quot;https://mail.kde.org/mailman/listinfo/distributions&quot;&gt;mailing list&lt;/a&gt; has been created to host these conversations.
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678670/rss">
+      <title>Mozilla unveils Firefox OS based IoT projects (LinuxGizmos.com)</title>
+      <link>http://lwn.net/Articles/678670/rss</link>
+      <dc:date>2016-03-03T22:19:27+00:00</dc:date>
+      <dc:creator>jake</dc:creator>
+      <description>
+      Over at LinuxGizmos, Eric Brown &lt;a href=&quot;http://linuxgizmos.com/mozilla-unveils-firefox-os-based-iot-projects/&quot;&gt;notes&lt;/a&gt; some new &quot;Internet of Things&quot; (IoT) projects from Mozilla that were described in a &lt;a href=&quot;https://blog.mozilla.org/futurereleases/2016/03/01/update-on-connected-devices/&quot;&gt;recent blog post&lt;/a&gt; by Ari Jaaksi, Mozilla Senior VP for Connected Devices.  &quot;&lt;span&gt;The first projects include a Project Start Home framework for a home automation system, as well as a Project Link personal user agent and Vaani voice interface that would work within such a framework. Finally, there’s a crowdsourced Project SensorWeb for tracking air pollution. Interestingly, the term “Firefox OS” is not used in the latest announcement, despite the reference to Firefox OS Connected Devices in the &lt;a href=&quot;https://blog.mozilla.org/futurereleases/2016/02/04/next-steps-for-connected-devices/&quot;&gt;previous post&lt;/a&gt;. Still, all the projects appear to use Firefox OS or Mozilla’s underlying Boot to Gecko (b2g) codebase. Mozilla is seeking testers, developers, and advisers, for all these open source projects.&lt;/span&gt;&quot;
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678608/rss">
+      <title>Security advisories for Thursday</title>
+      <link>http://lwn.net/Articles/678608/rss</link>
+      <dc:date>2016-03-03T17:13:47+00:00</dc:date>
+      <dc:creator>jake</dc:creator>
+      <description>
+      &lt;p&gt;&lt;b&gt;CentOS&lt;/b&gt; has updated &lt;b&gt;postgresql&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/678579/&quot;&gt;C7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678580/&quot;&gt;C6&lt;/a&gt;: denial of service).
+
+&lt;p&gt;&lt;b&gt;Fedora&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678581/&quot;&gt;kernel&lt;/a&gt; (F23:
+denial of service) and &lt;a href=&quot;http://lwn.net/Articles/678582/&quot;&gt;pcs&lt;/a&gt; (F22: two vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Mageia&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678583/&quot;&gt;asterisk&lt;/a&gt;
+(denial of service), &lt;a href=&quot;http://lwn.net/Articles/678584/&quot;&gt;drupal&lt;/a&gt; (multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678610/&quot;&gt;openssl&lt;/a&gt; (multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678586/&quot;&gt;perl-FCGI&lt;/a&gt; (denial of service from 2012), &lt;a
+href=&quot;http://lwn.net/Articles/678587/&quot;&gt;phpmyadmin&lt;/a&gt; (cross-site scripting), &lt;a
+href=&quot;http://lwn.net/Articles/678588/&quot;&gt;postgresql&lt;/a&gt; (two vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678589/&quot;&gt;tomcat&lt;/a&gt; (multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678590/&quot;&gt;wireshark&lt;/a&gt; (multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678591/&quot;&gt;xdelta3&lt;/a&gt; (code execution from 2014), and &lt;a
+href=&quot;http://lwn.net/Articles/678592/&quot;&gt;xerces-c&lt;/a&gt; (code execution).
+
+&lt;p&gt;&lt;b&gt;openSUSE&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/678593/&quot;&gt;libopenssl0_9_8&lt;/a&gt; (42.1, 13.2: many vulnerabilities, some
+from 2013 and 2014), &lt;a href=&quot;http://lwn.net/Articles/678594/&quot;&gt;libssh2_org&lt;/a&gt; (13.2:
+insecure sessions), and &lt;b&gt;openssl&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678596/&quot;&gt;13.1&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678595/&quot;&gt;11.4&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Oracle&lt;/b&gt; has updated &lt;b&gt;postgresql&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/678597/&quot;&gt;OL7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678598/&quot;&gt;OL6&lt;/a&gt;: denial of service).
+
+&lt;p&gt;&lt;b&gt;Red Hat&lt;/b&gt; has updated &lt;b&gt;postgresql&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678575/&quot;&gt;RHEL7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678576/&quot;&gt;RHEL6&lt;/a&gt;:
+denial of service), &lt;a href=&quot;http://lwn.net/Articles/678577/&quot;&gt;postgresql92-postgresql&lt;/a&gt;
+(RHSC: denial of service), and &lt;a href=&quot;http://lwn.net/Articles/678578/&quot;&gt;rh-postgresql94-postgresql&lt;/a&gt;
+(RHSC: denial of service).
+
+&lt;p&gt;&lt;b&gt;Scientific Linux&lt;/b&gt; has updated &lt;b&gt;postgresql&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678600/&quot;&gt;SL7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678599/&quot;&gt;SL6&lt;/a&gt;: denial of service).
+
+&lt;p&gt;&lt;b&gt;Slackware&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678601/&quot;&gt;mailx&lt;/a&gt; (drop
+SSLv2 support), &lt;a href=&quot;http://lwn.net/Articles/678602/&quot;&gt;openssl&lt;/a&gt; (multiple vulnerabilities), and &lt;a href=&quot;http://lwn.net/Articles/678603/&quot;&gt;php&lt;/a&gt; (multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;SUSE&lt;/b&gt; has updated &lt;a
+href=&quot;http://lwn.net/Articles/678604/&quot;&gt;compat-openssl097g&lt;/a&gt; (SLE11SP4: multiple vulnerabilities), &lt;a
+href=&quot;http://lwn.net/Articles/678605/&quot;&gt;java-1_7_0-ibm&lt;/a&gt; (SLE11SP3: multiple vulnerabilities), and &lt;a
+href=&quot;http://lwn.net/Articles/678606/&quot;&gt;openssl&lt;/a&gt; (SLE12, SLE12SP1: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Ubuntu&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678607/&quot;&gt;pixman&lt;/a&gt; (14.04,
+12.04: code execution from 2014).
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678561/rss">
+      <title>Borg, Omega, and Kubernetes (ACM Queue)</title>
+      <link>http://lwn.net/Articles/678561/rss</link>
+      <dc:date>2016-03-03T14:55:58+00:00</dc:date>
+      <dc:creator>corbet</dc:creator>
+      <description>
+      Five Google developers share the lessons from ten years of container
+development in &lt;a href=&quot;https://queue.acm.org/detail.cfm?id=2898444&quot;&gt;this
+ACM Queue article&lt;/a&gt;. 
+
+&quot;&lt;span&gt;To cope with these kinds of requirements, configuration-management
+systems tend to invent a domain-specific configuration language that
+(eventually) becomes Turing complete, starting from the desire to perform
+computation on the data in the configuration (e.g., to adjust the amount of
+memory to give a server as a function of the number of shards in the
+service). The result is the kind of inscrutable 'configuration is code'
+that people were trying to avoid by eliminating hard-coded parameters in
+the application's source code. It doesn't reduce operational complexity or
+make the configurations easier to debug or change; it just moves the
+computations from a real programming language to a domain-specific one,
+which typically has weaker development tools (e.g., debuggers, unit test
+frameworks, etc).&lt;/span&gt;&quot;
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/677399/rss">
+      <title>[$] LWN.net Weekly Edition for March 3, 2016</title>
+      <link>http://lwn.net/Articles/677399/rss</link>
+      <dc:date>2016-03-03T00:55:51+00:00</dc:date>
+      <dc:creator>corbet</dc:creator>
+      <description>
+      The LWN.net Weekly Edition for March 3, 2016 is available.
+
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/678385/rss">
+      <title>Security advisories for Wednesday</title>
+      <link>http://lwn.net/Articles/678385/rss</link>
+      <dc:date>2016-03-02T17:32:49+00:00</dc:date>
+      <dc:creator>ris</dc:creator>
+      <description>
+      &lt;p&gt;&lt;b&gt;CentOS&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678386/&quot;&gt;C7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678369/&quot;&gt;C5&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Fedora&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678370/&quot;&gt;graphite2&lt;/a&gt;
+(F23: unspecified vulnerabilities) and &lt;a href=&quot;http://lwn.net/Articles/678371/&quot;&gt;pcre&lt;/a&gt;
+(F23: denial of service).
+
+&lt;p&gt;&lt;b&gt;openSUSE&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/678373/&quot;&gt;Leap42.1&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678372/&quot;&gt;13.2&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Oracle&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a href=&quot;http://lwn.net/Articles/678375/&quot;&gt;OL7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678374/&quot;&gt;OL6&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678376/&quot;&gt;OL5&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Red Hat&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678362/&quot;&gt;RHEL6,&amp;nbsp;7&lt;/a&gt;; &lt;a
+href=&quot;http://lwn.net/Articles/678364/&quot;&gt;RHEL5&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678365/&quot;&gt;RHEL6.2,&amp;nbsp;6.4,&amp;nbsp;6.5&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678366/&quot;&gt;RHEL5.6,&amp;nbsp;5.9&lt;/a&gt;; &lt;a
+href=&quot;http://lwn.net/Articles/678367/&quot;&gt;RHEL6.6,&amp;nbsp;7.1&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678368/&quot;&gt;RHEL4&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Scientific Linux&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678378/&quot;&gt;SL6, 7&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678377/&quot;&gt;SL5&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;SUSE&lt;/b&gt; has updated &lt;b&gt;openssl&lt;/b&gt; (&lt;a
+href=&quot;http://lwn.net/Articles/678380/&quot;&gt;SLE12-SP1&lt;/a&gt;; &lt;a
+href=&quot;http://lwn.net/Articles/678379/&quot;&gt;SLE12&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678382/&quot;&gt;SLE11-SP2,3,4&lt;/a&gt;; &lt;a href=&quot;http://lwn.net/Articles/678381/&quot;&gt;SLES11&lt;/a&gt;: multiple vulnerabilities).
+
+&lt;p&gt;&lt;b&gt;Ubuntu&lt;/b&gt; has updated &lt;a href=&quot;http://lwn.net/Articles/678383/&quot;&gt;perl&lt;/a&gt; (multiple vulnerabilities) and &lt;a href=&quot;http://lwn.net/Articles/678384/&quot;&gt;python-django&lt;/a&gt; (two vulnerabilities).
+      
+      </description>
+    </item>
+    <item rdf:about="http://lwn.net/Articles/677764/rss">
+      <title>[$] Coverage-guided kernel fuzzing with syzkaller</title>
+      <link>http://lwn.net/Articles/677764/rss</link>
+      <dc:date>2016-03-02T00:02:28+00:00</dc:date>
+      <dc:creator>jake</dc:creator>
+      <description>
+      If your software deals with untrusted user input,
+  it's a good idea to run a fuzzer against the program.  For the Linux
+  kernel, the most 
+  effective fuzzer of recent years has
+  been Dave Jones's
+  &lt;a href=&quot;http://codemonkey.org.uk/projects/trinity/&quot;&gt;Trinity&lt;/a&gt; system call
+  tester.   But there's a new system call fuzzer in town, Dmitry Vyukov's
+  &lt;a href=&quot;https://github.com/google/syzkaller&quot;&gt;syzkaller&lt;/a&gt;, and early
+  results from it look promising &amp;mdash;
+  &lt;a href=&quot;https://github.com/google/syzkaller/wiki/Found-Bugs&quot;&gt;over 150
+  bugs&lt;/a&gt; uncovered in the mainline kernel (plus several dozen in Google's
+  internal 
+  kernels) in a few months of operation.
+&lt;p&gt;
+Click below (subscribers only) for the full article by David Drysdale.
+
+      
+      </description>
+    </item>
+</rdf:RDF>

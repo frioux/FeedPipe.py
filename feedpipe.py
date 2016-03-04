@@ -1,9 +1,16 @@
 #!/usr/bin/python
 
 import feedparser
+import xe
 import feed.atom as FA
+import feed.date.tools as FT
 from uuid import uuid4
 from datetime import datetime
+# https://docs.python.org/2/library/xml.html#xml-vulnerabilities
+# https://pypi.python.org/pypi/defusedxml/#defusedxml-sax
+from lxml import etree
+from xml.sax.saxutils import escape
+from HTMLParser import HTMLParser
 
 
 class FeedPipe(object):
@@ -111,20 +118,46 @@ class FeedPipe(object):
                     entry.title = e.title
 
                 if 'updated' in e:
-                    entry.updated = e.updated
+                    entry.updated = FT.tf_from_s(e.updated)
 
                 if 'author' in e:
                     entry.author = FA.Author(e.author)
 
-                if 'content' in e:
-                    entry.content = e.content[0].value
+                class Div(xe.NestElement):
+                    def __init__(self, content='', **attrs):
+                        xe.NestElement.__init__(self, tag_name="div")
+                        for k, v in attrs.items():
+                            self.attrs[k] = v
+                        self.content = xe.XMLText(content)
+
+                class Content(xe.NestElement):
+                    def __init__(self, content=''):
+                        xe.NestElement.__init__(self, tag_name="content")
+
+                        nco = HTMLParser().unescape(content)
+                        nco = u"<div>{}</div>".format(nco)
+                        try:
+
+                            etree.fromstring(nco)
+
+                            self.div = Div(
+                                xmlns='http://www.w3.org/1999/xhtml')
+                            self.div.content = content
+                            self.attrs["type"] = 'xhtml'
+                        except etree.XMLSyntaxError:
+                            self.attrs["type"] = 'html'
+                            self.content = xe.XMLText(escape(content))
+
+                if 'summary' in e:
+                    entry._lock = False
+                    entry.content = Content(e.summary)
+                    entry._lock = True
+                elif 'content' in e:
+                    entry.content = Content(e.content[0].value)
 
                 if 'link' in e:
                     link = FA.Link(e.link)
                     entry.link = link
-
-                if 'summary' in e:
-                    entry.summary = e.summary
 
                 if 'tags' in e:
                     entry.categories = FA.Collection(
@@ -134,12 +167,7 @@ class FeedPipe(object):
                         for tag in e.tags)
 
                 if 'published' in e:
-                    try:
-                        entry.published = e.published
-                    except ValueError:
-                        entry.published = datetime.strptime(
-                            e.published, '%a, %d %b %Y %H:%M:%S %Z'
-                        ).isoformat()
+                    entry.published = FT.tf_from_s(e.published)
 
                 self.entries.append(entry)
 
@@ -296,7 +324,7 @@ class FeedPipe(object):
         xmldoc = FA.XMLDoc()
         xmldoc.root_element = self.as_atom_obj()
 
-        return str(xmldoc)
+        return unicode(xmldoc).encode('utf-8').strip()
 
     def count(self):
         """

@@ -154,7 +154,18 @@ class TestBasic(unittest.TestCase):
             a.entries[1].title.text,
             'Checking sudoers with visudo in SaltStack'
         )
+        # print(str(fp.entries[1].content))
+        # self.assertEqual(
+        #     fp.entries[1].content.attrs['type'],
+        #     'xhtml'
+        # )
         self.assertEqual(fp.count(), 5)
+
+    def test_html_vs_xhtml(self):
+        fp = FeedPipe().cat(['./tests/lwn.xml'])
+        for x in fp.entries:
+            if x.content.attrs['type'] == 'html':
+                print(x.content)
 
 if __name__ == '__main__':
     unittest.main()
