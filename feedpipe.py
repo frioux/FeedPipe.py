@@ -10,7 +10,6 @@ from datetime import datetime
 # https://pypi.python.org/pypi/defusedxml/#defusedxml-sax
 from lxml import etree
 from xml.sax.saxutils import escape
-from HTMLParser import HTMLParser
 
 
 class FeedPipe(object):
@@ -128,14 +127,14 @@ class FeedPipe(object):
                         xe.NestElement.__init__(self, tag_name="div")
                         for k, v in attrs.items():
                             self.attrs[k] = v
-                        self.content = xe.XMLText(content)
+                        self.content = xe.XMLText(
+                            str(content).lstrip().rstrip())
 
                 class Content(xe.NestElement):
                     def __init__(self, content=''):
                         xe.NestElement.__init__(self, tag_name="content")
 
-                        nco = HTMLParser().unescape(content)
-                        nco = u"<div>{}</div>".format(nco)
+                        nco = u"<div>{}</div>".format(content)
                         try:
 
                             etree.fromstring(nco)
