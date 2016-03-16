@@ -62,6 +62,7 @@ class TestBasic(unittest.TestCase):
         dom = fp.as_atom_obj()
         self.assertEqual(dom.title.text, 'Combined Feed')
         self.assertEqual(dom.entries[0].title.text, 'First entry title')
+        self.assertNotEqual(dom.entries[0].published.text, "")
 
     def test_atom10(self):
         self._check_feed(FeedPipe().cat([ATOM10]))

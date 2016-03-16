@@ -116,8 +116,11 @@ class FeedPipe(object):
                 if 'title' in e:
                     entry.title = e.title
 
-                if 'updated' in e:
-                    entry.updated = FT.tf_from_s(e.updated)
+                if 'published' in e:
+                    entry.updated = FT.tf_from_s(e.published)
+
+                if entry.updated.text == '':
+                    print(entry)
 
                 if 'author' in e:
                     entry.author = FA.Author(e.author)
@@ -127,8 +130,7 @@ class FeedPipe(object):
                         xe.NestElement.__init__(self, tag_name="div")
                         for k, v in attrs.items():
                             self.attrs[k] = v
-                        self.content = xe.XMLText(
-                            str(content).lstrip().rstrip())
+                        self.content = xe.XMLText(content)
 
                 class Content(xe.NestElement):
                     def __init__(self, content=''):
