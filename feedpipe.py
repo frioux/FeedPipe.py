@@ -70,8 +70,10 @@ class FeedPipe(object):
     def __init__(self,
                  title="Combined Feed",
                  id=None,
-                 updated=None):
+                 updated=None,
+                 debug=None):
         self.title = title
+        self.debug = debug
 
         if id is None:
             id = 'urn:' + str(uuid4())
@@ -82,6 +84,9 @@ class FeedPipe(object):
         self.updated = updated
 
         self.entries = []
+
+        if self.debug:
+            self.debug_entries = {}
 
     def cat(self, feeds):
         """Adds list of new entry_ objects to the FeedPipe
@@ -109,6 +114,9 @@ class FeedPipe(object):
             data = feedparser.parse(feed)
 
             for e in data.entries:
+                if self.debug:
+                    self.debug_entries[e.id] = e
+
                 entry = FA.Entry()
                 if 'id' in e:
                     entry.id = e.id
@@ -117,9 +125,17 @@ class FeedPipe(object):
                     entry.title = e.title
 
                 if 'published' in e:
-                    entry.updated = FT.tf_from_s(e.published)
+                    # loses tz info
+                    entry.updated = datetime(
+                        *e.published_parsed[:6]).strftime('%FT%T%z')
+                    # print('published in entry')
+                if 'updated' in e:
+                    entry.updated = datetime(
+                        *e.updated_parsed[:6]).strftime('%FT%T%z')
+                    # print('updated in entry')
 
                 if entry.updated.text == '':
+                    print(e)
                     print(entry)
 
                 if 'author' in e:
